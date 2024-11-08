@@ -5,12 +5,14 @@ plugins {
 
 android {
     namespace = "com.cs407.memoMate"
-    compileSdk = 34
+    compileSdk = 35
+
 
     defaultConfig {
         applicationId = "com.cs407.memoMate"
         minSdk = 24
         targetSdk = 34
+        minSdk = 26
         versionCode = 1
         versionName = "1.0"
 
@@ -42,7 +44,12 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.calendar.compose)
+    implementation(libs.calendar.view)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
 }
