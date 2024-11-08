@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.cs407.memoMate.R
 
 class TaskAdapter(private val tasks: MutableList<TaskItem>) :
     RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
