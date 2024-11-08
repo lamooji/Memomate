@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#EDEDED">
+
+    <!-- Add Task Text -->
+    <TextView
+        android:id="@+id/add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add task"
+        android:textColor="#007AFF"
+        android:textSize="16sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <!-- Task List Title -->
+    <TextView
+        android:id="@+id/task_list_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Task List"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_below="@id/add_task"
+        android:layout_marginTop="16dp" />
+
+    <!-- Date Text -->
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Today is Oct 13"
+        android:textSize="14sp"
+        android:textColor="#999999"
+        android:layout_below="@id/task_list_title"
+        android:layout_marginTop="4dp" />
+
+    <!-- Significance and Urgency Axes Labels -->
+    <TextView
+        android:id="@+id/significance_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Significance"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp" />
+
+    <TextView
+        android:id="@+id/urgency_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Urgency"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp" />
+
+    <!-- Midlines -->
+    <View
+        android:id="@+id/vertical_line"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:background="#B0B0B0" />
+
+    <View
+        android:id="@+id/horizontal_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerVertical="true"
+        android:background="#B0B0B0" />
+
+    <!-- Quadrants (Tasks) -->
+
+    <!-- Mid-Significance and High Urgency Task (Code Review) -->
+    <TextView
+        android:id="@+id/task_code_review"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Code Review\n10/18"
+        android:padding="8dp"
+        android:background="#FFD966"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_alignTop="@id/horizontal_line"
+        android:layout_alignEnd="@id/vertical_line"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp" />
+
+    <!-- Top Left Task (CS447 P3) -->
+    <TextView
+        android:id="@+id/task_cs447"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CS447 P3\n10/21"
+        android:padding="8dp"
+        android:background="#A3D977"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_centerInParent="true"
+        android:layout_marginEnd="80dp"
+        android:layout_marginBottom="200dp" />
+
+    <!-- Top Right Task (CS357 Midterm) -->
+    <TextView
+        android:id="@+id/task_cs357_midterm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CS357 Midterm 1\n10/14"
+        android:padding="8dp"
+        android:background="#FF6B6B"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="80dp"
+        android:layout_marginBottom="200dp" />
+
+    <!-- Middle Right Task (Zybook Chap. 6) -->
+
+    <!-- Bottom Left Task (Resume Update) -->
+
+    <TextView
+        android:id="@+id/task_zybook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="180dp"
+        android:layout_marginTop="80dp"
+        android:background="#FF6B6B"
+        android:padding="8dp"
+        android:text="Zybook Chap. 6\n10/14"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/task_resume_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Resume Update\n11/15"
+        android:padding="8dp"
+        android:background="#A3D977"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="250dp" />
+
+    <!-- Add New Task Button (Bottom Right Corner) -->
+    <ImageView
+        android:id="@+id/add_new_task"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:contentDescription="Add new task" />
+
+</RelativeLayout>
