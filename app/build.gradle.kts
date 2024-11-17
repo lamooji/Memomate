@@ -5,13 +5,12 @@ plugins {
 
 android {
     namespace = "com.cs407.memoMate"
-    compileSdk = 34
+    compileSdk = 35 // Updated to fix the androidx.core dependency issue
 
     defaultConfig {
         applicationId = "com.cs407.memoMate"
-        minSdk = 24
-        targetSdk = 34
-        minSdk = 26
+        minSdk = 26 // Removed duplicate entry
+        targetSdk = 34 // You can leave this as 34
         versionCode = 1
         versionName = "1.0"
 
@@ -27,7 +26,6 @@ android {
             )
         }
     }
-
 
     buildFeatures {
         viewBinding = true
