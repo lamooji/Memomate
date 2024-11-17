@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.cs407.memoMate"
-    compileSdk = 35 // Updated to fix the androidx.core dependency issue
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.cs407.memoMate"
-        minSdk = 26 // Removed duplicate entry
-        targetSdk = 34 // You can leave this as 34
+        minSdk = 26
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
