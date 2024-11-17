@@ -1,7 +1,4 @@
-// TaskItem.kt
-package com.cs407.memomate
 
-class TaskItem(taskText: String) {
-    lateinit var task: String
-    var isChecked: Boolean = false
-}
+package com.cs407.memoMate
+
+data class TaskItem(val task: String, var isChecked: Boolean = false)
