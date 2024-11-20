@@ -34,6 +34,7 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
         // Initialize Buttons
         val addButton = view.findViewById<Button>(R.id.addButton)
         val calendarButton = view.findViewById<Button>(R.id.calendarButton)
+        val topButton = view.findViewById<Button>(R.id.topButton) // New button
 
         addButton.setOnClickListener {
             val addTaskMenu = AddTaskMenu()
@@ -47,7 +48,16 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
                 .addToBackStack(null)
                 .commit()
         }
+
+        topButton.setOnClickListener {
+            // Navigate to urgent_important_matrix.xml (assuming it's tied to a fragment)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, UrgentImportantMatrixFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
+
 
     // Implement the TaskDialogListener interface
     override fun onTaskAdded(name: String, ddl: String, isFinished: Boolean, note: String) {
