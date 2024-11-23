@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.cs407.memoMate"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.cs407.memoMate"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         minSdk = 26
         versionCode = 1
         versionName = "1.0"

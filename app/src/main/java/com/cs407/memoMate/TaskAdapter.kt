@@ -1,5 +1,5 @@
 // TaskAdapter.kt
-package com.cs407.memomate
+package com.cs407.memoMate
 
 import android.view.LayoutInflater
 import android.view.View

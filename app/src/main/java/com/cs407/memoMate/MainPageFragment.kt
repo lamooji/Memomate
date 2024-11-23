@@ -1,5 +1,5 @@
 // MainPageFragment.kt
-package com.cs407.memomate;
+package com.cs407.memoMate;
 
 import android.os.Bundle
 import android.view.*
