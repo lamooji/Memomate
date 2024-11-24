@@ -9,9 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.cs407.memoMate"
-        minSdk = 24
-        targetSdk = 35
         minSdk = 26
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -27,7 +26,6 @@ android {
             )
         }
     }
-
 
     buildFeatures {
         viewBinding = true
