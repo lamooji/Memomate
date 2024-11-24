@@ -20,9 +20,12 @@ import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.Locale
 import android.view.Gravity
+import android.widget.Toast
 
 
 class CalendarFragment : Fragment(R.layout.fragment_calendar) {
+
+    private var selectedDate: LocalDate? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
@@ -53,58 +56,13 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             calendarView.scrollToMonth(currentMonth)
         }
 
-        // bind dates
-//        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-//            override fun create(view: View) = DayViewContainer(view)
-//
-//            override fun bind(container: DayViewContainer, data: CalendarDay) {
-//                container.textView.text = data.date.dayOfMonth.toString()
-//
-//                // highlight today
-//                val today = LocalDate.now()
-//                container.textView.setBackgroundResource(
-//                    if (data.date == today) R.drawable.bg_today else R.drawable.bg_normal
-//                )
-//
-//                // disable future datas
-//                container.textView.isEnabled = !data.date.isAfter(today)
-//            }
-//        }
-
-        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-            override fun create(view: View) = DayViewContainer(view)
-
-            override fun bind(container: DayViewContainer, data: CalendarDay) {
-                container.textView.text = data.date.dayOfMonth.toString()
-
-                // get current month
-                val currentMonth = YearMonth.now()
-
-                // set backgrand color for today
-                val today = LocalDate.now()
-                container.textView.setBackgroundResource(
-                    if (data.date == today) R.drawable.bg_today else R.drawable.bg_normal
-                )
-
-                // set other month to gray
-                if (data.date.month != currentMonth.month) {
-                    container.textView.isEnabled = false
-                    container.textView.alpha = 0.3f
-                } else {
-                    container.textView.isEnabled = true
-                    container.textView.alpha = 1f
-                }
-
-            }
+        // Use DateSelector for dayBinder
+        calendarView.dayBinder = DateSelector(
+            context = requireContext(),
+            calendarView = calendarView,
+            todayDrawable = R.drawable.bg_today,
+            normalDrawable = R.drawable.bg_normal,
+            highlightedDrawable = R.drawable.bg_highlighted
+        )
         }
-
-    }
-
-    inner class DayViewContainer(view: View) : ViewContainer(view) {
-        val textView = view.findViewById<TextView>(R.id.calendarDayText)
-
-        // With ViewBinding
-        //val textView = CalendarDayLayoutBinding.bind(view).calendarDayText
-
-    }
 }
