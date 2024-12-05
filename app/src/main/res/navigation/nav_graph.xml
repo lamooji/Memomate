@@ -8,9 +8,21 @@
 
     <fragment
         android:id="@+id/mainPageFragment"
-        android:name="com.cs407.memomate.MainPageFragment"
+        android:name="com.cs407.memoMate.MainPageFragment"
         android:label="Main Page"
         tools:layout="@layout/fragment_main_page" />
+
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.cs407.memoMate.CalendarFragment"
+        android:label="Calendar"
+        tools:layout="@layout/fragment_calendar">
+        <action
+            android:id="@+id/action_calendarFragment_to_mainPageFragment"
+            app:destination="@id/mainPageFragment" />
+    </fragment>
+
+
 
     <!-- Add other fragments here if necessary -->
 </navigation>
