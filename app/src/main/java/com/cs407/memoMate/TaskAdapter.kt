@@ -1,14 +1,13 @@
 // TaskAdapter.kt
 package com.cs407.memoMate
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.cs407.memoMate.R
-import com.cs407.memoMate.TaskItem
 
 class TaskAdapter(private val tasks: MutableList<TaskItem>) :
     RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
@@ -30,8 +29,17 @@ class TaskAdapter(private val tasks: MutableList<TaskItem>) :
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val taskItem = tasks[position]
-        holder.taskTextView.text = taskItem.task
+        holder.taskTextView.text = taskItem.name
         holder.taskCheckBox.isChecked = taskItem.isChecked
+
+        // Set the background color based on importance
+        val backgroundColor = when (taskItem.importance) {
+            1 -> Color.RED
+            2 -> Color.YELLOW
+            3 -> Color.GREEN
+            else -> Color.WHITE
+        }
+        holder.itemView.setBackgroundColor(backgroundColor)
 
         // Handle checkbox state changes
         holder.taskCheckBox.setOnCheckedChangeListener { _, isChecked ->
