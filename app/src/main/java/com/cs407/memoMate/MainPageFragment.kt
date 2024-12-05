@@ -59,6 +59,17 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
                 .addToBackStack(null)
                 .commit()
         }
+
+        val chatGPTButton = view.findViewById<Button>(R.id.chatgptButton)
+        chatGPTButton.setOnClickListener {
+            // Navigate to ChatGPTFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ChatGPTFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+
     }
 
 
