@@ -17,6 +17,13 @@ view = "<latest-version>"
 compose = "2.6.0"
 viewVersion = "2.6.0"
 calendarView = "1.0.4"
+pagingCommonAndroid = "3.3.4"
+roomCommon = "2.6.1"
+roomKtx = "2.6.1"
+roomRuntime = "2.5.0"
+roomKtxVersion = "2.5.0"
+roomCompiler = "2.5.0"
+roomPaging = "2.7.0-alpha11"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +43,13 @@ view = { module = "com.kizitonwose.calendar:view", version.ref = "view" }
 calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "compose" }
 calendar-view = { group = "com.kizitonwose.calendar", name = "view", version.ref = "viewVersion" }
 kizitonwose-calendar-view = { group = "com.kizitonwose.calendar", name = "calendar-view", version.ref = "calendarView" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtxVersion" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "roomPaging" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
