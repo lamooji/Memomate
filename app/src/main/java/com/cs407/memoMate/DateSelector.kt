@@ -20,6 +20,7 @@ class DateSelector(
 ) : MonthDayBinder<DateSelector.DayViewContainer> {
 
     private var selectedDate: LocalDate? = null // Tracks the selected date
+    private var currentMonth: YearMonth = YearMonth.now() // Tracks the current visible month
 
     override fun create(view: View) = DayViewContainer(view)
 
@@ -27,7 +28,6 @@ class DateSelector(
         container.textView.text = data.date.dayOfMonth.toString()
 
         val today = LocalDate.now()
-        val currentMonth = YearMonth.now()
 
         // Highlight selected date or today
         when {
@@ -65,6 +65,14 @@ class DateSelector(
                 selectedDate?.let { calendarView.notifyDateChanged(it) }
             }
         }
+    }
+
+    /**
+     * Update the current month and refresh the calendar view.
+     */
+    fun updateMonth(newMonth: YearMonth) {
+        currentMonth = newMonth
+        calendarView.notifyMonthChanged(newMonth)
     }
 
     inner class DayViewContainer(view: View) : ViewContainer(view) {
