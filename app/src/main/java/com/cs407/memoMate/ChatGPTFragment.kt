@@ -19,7 +19,7 @@ import org.json.JSONObject
 
 class ChatGPTFragment : Fragment() {
 
-    // Declare UI components
+    // Declare UI component
     private lateinit var chatTextView: TextView
     private lateinit var inputEditText: EditText
     private lateinit var sendButton: Button

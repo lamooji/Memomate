@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Chat display area -->
+    <!-- Chat display areas -->
     <TextView
         android:id="@+id/chatTextView"
         android:layout_width="match_parent"
