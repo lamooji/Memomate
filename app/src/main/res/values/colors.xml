@@ -5,5 +5,10 @@
 
     <color name="dark_gray">#A9A9A9</color>
     <color name="red">#A5FF2E2E</color>
+    <color name="light_gray">#D5D5D5</color>
+
+    <color name = "icon_circle_red">#A5FF2E2E</color>
+    <color name = "blue_main_text">#007CFF</color>
+
 
 </resources>

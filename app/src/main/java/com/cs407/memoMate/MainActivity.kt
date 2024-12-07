@@ -15,10 +15,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //TODO: old main page, delete if no longer need for debugging
         // Load MainPageFragment by default
+//        if (savedInstanceState == null) {
+//            supportFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container, MainPageFragment())
+//                .commit()
+//        }
+
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, MainPageFragment())
+                .replace(R.id.fragment_container, ScreenFragment())
                 .commit()
         }
     }
