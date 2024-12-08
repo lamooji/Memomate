@@ -19,7 +19,7 @@ class DateSelector(
     private val taskImportanceMap: Map<LocalDate, Int>
 ) : MonthDayBinder<DateSelector.DayViewContainer> {
 
-    private var currentMonth: YearMonth = YearMonth.now()
+    private var currentMonth: YearMonth = YearMonth.now() // Tracks the current visible month
 
     override fun create(view: View) = DayViewContainer(view)
 
@@ -30,28 +30,26 @@ class DateSelector(
         val importanceLevel = taskImportanceMap[data.date] ?: 0
         val importanceColor = importanceColors[importanceLevel] ?: R.color.default_day
 
-        when {
-            // Highlight today's date
-            data.date == today -> {
+        if (data.date.month != currentMonth.month) {
+            // Non-current month dates are dimmed
+            container.textView.isEnabled = false
+            container.textView.alpha = 0.3f
+            container.textView.setBackgroundResource(0) // Clear background
+            container.textView.setTextColor(ContextCompat.getColor(context, R.color.dark_gray))
+        } else {
+            // Current month dates
+            container.textView.isEnabled = true
+            container.textView.alpha = 1f
+            container.textView.setTextColor(ContextCompat.getColor(context, R.color.black))
+
+            // Highlight today's date or apply importance-based background
+            if (data.date == today) {
                 container.textView.setBackgroundResource(todayDrawable)
-                container.textView.setTextColor(ContextCompat.getColor(context, R.color.black))
-            }
-            else -> {
-                // Apply importance-based background color
+            } else {
                 val importanceBackground = ContextCompat.getDrawable(context, R.drawable.bg_normal)
                 importanceBackground?.setTint(ContextCompat.getColor(context, importanceColor))
                 container.textView.background = importanceBackground
-                container.textView.setTextColor(ContextCompat.getColor(context, R.color.black))
             }
-        }
-
-        // Disable non-current month dates
-        if (data.date.month != currentMonth.month) {
-            container.textView.isEnabled = false
-            container.textView.alpha = 0.3f
-        } else {
-            container.textView.isEnabled = true
-            container.textView.alpha = 1f
         }
     }
 

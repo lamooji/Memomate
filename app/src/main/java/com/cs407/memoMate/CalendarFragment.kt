@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
 import java.util.Date
 
 class CalendarFragment : Fragment(R.layout.fragment_calendar) {
@@ -34,6 +35,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
     private var currentMonth: YearMonth = YearMonth.now()
     private lateinit var taskDao: TaskDao
     private lateinit var calendarView: CalendarView
+    private lateinit var dateSelector: DateSelector // Ensure this is properly initialized
     private val dateFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
 
     private val importanceColors = mapOf(
@@ -56,9 +58,26 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
         Log.d("calendar", "Database initialized")
 
+        // Initialize the dateSelector early
+        dateSelector = DateSelector(
+            context = requireContext(),
+            calendarView = calendarView,
+            todayDrawable = R.drawable.bg_today,
+            importanceColors = importanceColors,
+            taskImportanceMap = taskImportanceMap
+        )
+
+        val dummyDataInitializer = DummyDataInitializer()
+
         // Populate and load tasks
         CoroutineScope(Dispatchers.IO).launch {
-            populateDatabaseWithDummyData(taskDao).join()
+            val taskCount = taskDao.getTaskCount()
+            if (taskCount == 0) {
+                Log.d("calendar", "Database is empty. Populating with dummy data.")
+                dummyDataInitializer.populateDatabaseWithDummyData(taskDao) // Use the new class here
+            } else {
+                Log.d("calendar", "Database already populated with $taskCount tasks.")
+            }
             loadTasksForCurrentMonth()
             withContext(Dispatchers.Main) {
                 setupWeekTitle(titlesContainer)
@@ -72,6 +91,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             updateMonthTitle(monthTitle)
             calendarView.scrollToMonth(currentMonth)
             loadTasksForCurrentMonth()
+            dateSelector.updateMonth(currentMonth)
         }
 
         btnPrevMonth.setOnClickListener {
@@ -79,6 +99,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             updateMonthTitle(monthTitle)
             calendarView.scrollToMonth(currentMonth)
             loadTasksForCurrentMonth()
+            dateSelector.updateMonth(currentMonth)
         }
     }
 
@@ -104,14 +125,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
         calendarView.setup(startMonth, endMonth, daysOfWeek().first())
         calendarView.scrollToMonth(currentMonth)
 
-        val dateSelector = DateSelector(
-            context = requireContext(),
-            calendarView = calendarView,
-            todayDrawable = R.drawable.bg_today,
-            importanceColors = importanceColors,
-            taskImportanceMap = taskImportanceMap
-        )
-
+        // Assign the already initialized dateSelector
         calendarView.dayBinder = dateSelector
 
         updateMonthTitle(monthTitle)
@@ -138,73 +152,9 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
                 taskImportanceMap[date] = maxImportance
             }
 
-            // Notify calendar on the main thread
             withContext(Dispatchers.Main) {
-                calendarView.notifyCalendarChanged()
+                calendarView.notifyCalendarChanged() // Notify calendar to redraw
             }
-        }
-    }
-
-
-    private fun populateDatabaseWithDummyData(taskDao: TaskDao): Job {
-        return CoroutineScope(Dispatchers.IO).launch {
-            val dummyTasks = listOf(
-                Task(
-                    noteId = 0, // Auto-generate ID
-                    noteTitle = "High Priority Task",
-                    noteAbstract = "This is a high priority task description.",
-                    ddl = Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000)), // 2 days from now
-                    significance = 3,
-                    finished = false
-                ),
-                Task(
-                    noteId = 0,
-                    noteTitle = "Medium Priority Task",
-                    noteAbstract = "This is a medium priority task description.",
-                    ddl = Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)), // 5 days from now
-                    significance = 2,
-                    finished = false
-                ),
-                Task(
-                    noteId = 0,
-                    noteTitle = "Low Priority Task",
-                    noteAbstract = "This is a low priority task description.",
-                    ddl = Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000)), // 10 days from now
-                    significance = 1,
-                    finished = false
-                ),
-                Task(
-                    noteId = 0,
-                    noteTitle = "Completed Task",
-                    noteAbstract = "This task is already finished.",
-                    ddl = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
-                    significance = 3,
-                    finished = false
-                ),
-                Task(
-                    noteId = 0,
-                    noteTitle = "high Task",
-                    noteAbstract = "This task is already finished.",
-                    ddl = Date(System.currentTimeMillis() + (30 * 24 * 60 * 60 * 1000)), // 30 day ago
-                    significance = 3,
-                    finished = false
-                ),
-                Task(
-                    noteId = 0,
-                    noteTitle = "high Task",
-                    noteAbstract = "This task is already finished.",
-                    ddl = Date(System.currentTimeMillis() + (27 * 24 * 60 * 60 * 1000)), // 30 day ago
-                    significance = 3,
-                    finished = false
-                )
-
-            )
-
-            dummyTasks.forEach { task ->
-                taskDao.insertTask(task)
-            }
-
-            Log.d("calendar", "Inserted ${dummyTasks.size} dummy tasks into the database.")
         }
     }
 }

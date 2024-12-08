@@ -66,6 +66,8 @@ interface TaskDao {
     @Query("SELECT * FROM task_list WHERE strftime('%Y-%m', ddl / 1000, 'unixepoch') = :currentMonth")
     suspend fun getTasksForMonth(currentMonth: String): List<Task>
 
+    @Query("SELECT COUNT(*) FROM task_list")
+    suspend fun getTaskCount(): Int
 
     //usage:
     // 1) get current data :
