@@ -1,6 +1,7 @@
 package com.cs407.memoMate
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -16,15 +17,21 @@ class DateSelector(
     private val calendarView: CalendarView,
     private val todayDrawable: Int,
     private val importanceColors: Map<Int, Int>,
-    private val taskImportanceMap: Map<LocalDate, Int>
+    private val taskImportanceMap: Map<LocalDate, Int>,
+    private val onDateSelected: (LocalDate) -> Unit
 ) : MonthDayBinder<DateSelector.DayViewContainer> {
 
     private var currentMonth: YearMonth = YearMonth.now() // Tracks the current visible month
 
-    override fun create(view: View) = DayViewContainer(view)
+    override fun create(view: View): DayViewContainer {
+        return DayViewContainer(view) { selectedDate ->
+            onDateSelected(selectedDate)
+        }
+    }
 
     override fun bind(container: DayViewContainer, data: CalendarDay) {
         container.textView.text = data.date.dayOfMonth.toString()
+        container.date = data.date
 
         val today = LocalDate.now()
         val importanceLevel = taskImportanceMap[data.date] ?: 0
@@ -58,7 +65,15 @@ class DateSelector(
         calendarView.notifyMonthChanged(newMonth)
     }
 
-    inner class DayViewContainer(view: View) : ViewContainer(view) {
+    class DayViewContainer(view: View, val onDateClick: (LocalDate) -> Unit) : ViewContainer(view) {
         val textView: TextView = view.findViewById(R.id.calendarDayText)
+        var date: LocalDate? = null
+
+        init {
+            view.setOnClickListener {
+                Log.d("DateSelector", "Clicked on date: $date")
+                date?.let { onDateClick(it) }
+            }
+        }
     }
 }

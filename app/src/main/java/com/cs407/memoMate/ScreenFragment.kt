@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import com.google.android.material.textview.MaterialTextView
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -68,6 +69,14 @@ class ScreenFragment : Fragment() {
         askAIButton.setOnClickListener {
             val chatOverlayDialog = ChatOverlayDialogFragment()
             chatOverlayDialog.show(parentFragmentManager, "ChatOverlayDialog")
+        }
+
+        //edit button
+        view.findViewById<MaterialTextView>(R.id.edit_button).setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ViewTaskListFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
 

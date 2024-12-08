@@ -32,7 +32,6 @@ import java.util.Date
 
 class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
-    private var selectedDate: LocalDate? = null
     private var currentMonth: YearMonth = YearMonth.now()
     private lateinit var taskDao: TaskDao
     private lateinit var calendarView: CalendarView
@@ -66,7 +65,10 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             todayDrawable = R.drawable.bg_today,
             importanceColors = importanceColors,
             taskImportanceMap = taskImportanceMap
-        )
+        ) { selectedDate ->
+            Log.d("DateSelector", "Date clicked: $selectedDate")
+            navigateToTaskList(selectedDate)
+        }
 
         val dummyDataInitializer = DummyDataInitializer()
 
@@ -102,6 +104,10 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             loadTasksForCurrentMonth()
             dateSelector.updateMonth(currentMonth)
         }
+
+        val backButton = view.findViewById<ImageView>(R.id.going_back_calendar)
+        backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+
     }
 
     private fun setupWeekTitle(titlesContainer: LinearLayout) {
@@ -161,5 +167,17 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
         }
     }
 
+    private fun navigateToTaskList(date: LocalDate) {
+        val bundle = Bundle().apply {
+            putString("selected_date", date.toString()) // Pass the date as a string
+        }
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, SelectedTaskListFragment().apply {
+                arguments = bundle
+            })
+            .addToBackStack(null)
+            .commit()
+    }
 
 }
