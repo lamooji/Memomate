@@ -1,48 +1,63 @@
-package com.cs407.memoMate
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
 import com.cs407.memoMate.Data.Task
 import com.cs407.memoMate.Data.TaskDao
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TaskViewModel(private val taskDao: TaskDao) : ViewModel() {
 
-    // LiveData to observe all tasks
-    val allTasks: LiveData<List<Task>> = liveData {
-        emit(taskDao.getAllTasks())
-    }
+    // Helper function to check if a task is urgent (due within the next 7 days)
+    private fun isUrgent(ddl: String): Boolean {
+        val sdf = SimpleDateFormat("MM/dd", Locale.US)
+        return try {
+            val currentDate = Calendar.getInstance()
+            val dueDate = Calendar.getInstance()
+            dueDate.time = sdf.parse(ddl) ?: return false
 
-    // Insert a new task
-    fun insertTask(task: Task) {
-        viewModelScope.launch {
-            taskDao.insertTask(task)
+            // Calculate 7 days from now
+            val nextWeek = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, 7)
+            }
+
+            // Check if due date is within the next 7 days
+            dueDate.time <= nextWeek.time
+        } catch (e: Exception) {
+            false // Return false if date parsing fails
         }
     }
 
-    // Delete a task by its object
-    fun deleteTask(task: Task) {
-        viewModelScope.launch {
-            taskDao.deleteTask(task)
+    // Fetch urgent and important tasks
+    fun getUrgentAndImportantTasks(): LiveData<List<Task>> = liveData(Dispatchers.IO) {
+        val tasks = taskDao.getAllTasks().filter {
+            isUrgent(it.ddl) && it.importance == 3 // Urgent and most important
         }
+        emit(tasks)
     }
 
-    // Delete a task by ID
-    fun deleteTaskById(taskId: Int) {
-        viewModelScope.launch {
-            taskDao.deleteTaskById(taskId)
+    // Fetch urgent but not important tasks
+    fun getUrgentButNotImportantTasks(): LiveData<List<Task>> = liveData(Dispatchers.IO) {
+        val tasks = taskDao.getAllTasks().filter {
+            isUrgent(it.ddl) && it.importance < 3 // Urgent but less important
         }
+        emit(tasks)
     }
 
-    // Get a task by ID
-    fun getTaskById(taskId: Int): LiveData<Task?> = liveData {
-        emit(taskDao.getTaskById(taskId))
+    // Fetch important but not urgent tasks
+    fun getImportantButNotUrgentTasks(): LiveData<List<Task>> = liveData(Dispatchers.IO) {
+        val tasks = taskDao.getAllTasks().filter {
+            !isUrgent(it.ddl) && it.importance == 3 // Important but not urgent
+        }
+        emit(tasks)
     }
 
-    // Get tasks within a specific date range
-    fun getTasksWithinThreeDays(currentDate: String): LiveData<List<Task>> = liveData {
-        emit(taskDao.getTasksWithinThreeDays(currentDate))
+    // Fetch neither urgent nor important tasks
+    fun getNeitherUrgentNorImportantTasks(): LiveData<List<Task>> = liveData(Dispatchers.IO) {
+        val tasks = taskDao.getAllTasks().filter {
+            !isUrgent(it.ddl) && it.importance < 3 // Neither urgent nor important
+        }
+        emit(tasks)
     }
 }

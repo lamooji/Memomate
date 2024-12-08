@@ -11,8 +11,8 @@ import com.cs407.memoMate.Data.TaskDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DummyDataInitializer : ContentProvider() {
 
@@ -31,86 +31,77 @@ class DummyDataInitializer : ContentProvider() {
         return true
     }
 
-    public suspend fun populateDatabaseWithDummyData(taskDao: TaskDao) {
+    suspend fun populateDatabaseWithDummyData(taskDao: TaskDao) {
         val baseDate = Calendar.getInstance().apply {
             set(Calendar.YEAR, 2024)
             set(Calendar.MONTH, Calendar.DECEMBER)
             set(Calendar.DAY_OF_MONTH, 10)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
         }.time
 
         val dummyTasks = listOf(
             Task(
                 noteId = 0, // Auto-generate ID
                 noteTitle = "High Priority Task",
-                noteAbstract = "This is a high priority task description.",
-                ddl = Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000)), // 2 days from now
+                noteAbstract = "This is a high-priority task description.",
+                ddl = formatDate(baseDate, 2), // 2 days from now
                 significance = 3,
-                finished = false
+                finished = false,
+                importance = 3
             ),
             Task(
                 noteId = 0,
                 noteTitle = "Medium Priority Task",
-                noteAbstract = "This is a medium priority task description.",
-                ddl = Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)), // 5 days from now
+                noteAbstract = "This is a medium-priority task description.",
+                ddl = formatDate(baseDate, 5), // 5 days from now
                 significance = 2,
-                finished = false
+                finished = false,
+                importance = 2
             ),
             Task(
                 noteId = 0,
                 noteTitle = "Low Priority Task",
-                noteAbstract = "This is a low priority task description.",
-                ddl = Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000)), // 10 days from now
+                noteAbstract = "This is a low-priority task description.",
+                ddl = formatDate(baseDate, 10), // 10 days from now
                 significance = 1,
-                finished = false
+                finished = false,
+                importance = 1
             ),
             Task(
                 noteId = 0,
                 noteTitle = "Completed Task",
                 noteAbstract = "This task is already finished.",
-                ddl = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
+                ddl = formatDate(baseDate, -1), // 1 day ago
                 significance = 3,
-                finished = false
+                finished = true,
+                importance = 3
             ),
             Task(
                 noteId = 0,
-                noteTitle = "high Task",
-                noteAbstract = "This task does not wanted to be finished.",
-                ddl  = Calendar.getInstance().apply {
-                    time = baseDate
-                    add(Calendar.DAY_OF_MONTH, 27)
-                }.time, // 30 days later
+                noteTitle = "Future High Priority Task",
+                noteAbstract = "This task has a far-off deadline.",
+                ddl = formatDate(baseDate, 30), // 30 days later
                 significance = 3,
-                finished = false
+                finished = false,
+                importance = 3
             ),
             Task(
                 noteId = 0,
-                noteTitle = "high Task11",
-                noteAbstract = "This task is not finished.",
-                ddl = Calendar.getInstance().apply {
-                    time = baseDate
-                    add(Calendar.DAY_OF_MONTH, 22)
-                }.time, // 21 days later
-                significance = 1,
-                finished = false
-            )
-            ,
-            Task(
-                noteId = 0,
-                noteTitle = "high Task11",
-                noteAbstract = "This task is not yet finished.",
-                ddl = Calendar.getInstance().apply {
-                    time = baseDate
-                    add(Calendar.DAY_OF_MONTH, 30)
-                }.time, // 20 days later
+                noteTitle = "Future Medium Priority Task",
+                noteAbstract = "This task has a medium deadline.",
+                ddl = formatDate(baseDate, 21), // 21 days later
                 significance = 2,
-                finished = false
+                finished = false,
+                importance = 2
+            ),
+            Task(
+                noteId = 0,
+                noteTitle = "Future Low Priority Task",
+                noteAbstract = "This task has a far-off deadline.",
+                ddl = formatDate(baseDate, 30), // 30 days later
+                significance = 1,
+                finished = false,
+                importance = 1
             )
-
-
         )
 
         dummyTasks.forEach { task ->
@@ -120,6 +111,13 @@ class DummyDataInitializer : ContentProvider() {
         Log.d("DummyDataInitializer", "Inserted ${dummyTasks.size} dummy tasks into the database.")
     }
 
+    private fun formatDate(baseDate: Date, daysToAdd: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar.time = baseDate
+        calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
+        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+        return sdf.format(calendar.time)
+    }
 
     override fun query(
         uri: Uri,
@@ -142,3 +140,4 @@ class DummyDataInitializer : ContentProvider() {
 
     override fun getType(uri: Uri): String? = null
 }
+

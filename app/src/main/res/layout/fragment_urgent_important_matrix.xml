@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#EDEDED">
+
+    <!-- Midlines -->
+    <View
+        android:id="@+id/vertical_line"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:background="#B0B0B0" />
+
+    <View
+        android:id="@+id/horizontal_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerVertical="true"
+        android:background="#B0B0B0" />
+
+    <!-- Urgent and Important (Top-Left Quadrant) -->
+    <LinearLayout
+        android:id="@+id/urgent_important_quadrant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_above="@id/horizontal_line"
+        android:layout_toStartOf="@id/vertical_line"
+        android:padding="8dp" />
+
+    <!-- Urgent but Not Important (Top-Right Quadrant) -->
+    <LinearLayout
+        android:id="@+id/urgent_not_important_quadrant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_above="@id/horizontal_line"
+        android:layout_toEndOf="@id/vertical_line"
+        android:padding="8dp" />
+
+    <!-- Not Urgent but Important (Bottom-Left Quadrant) -->
+    <LinearLayout
+        android:id="@+id/not_urgent_important_quadrant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@id/horizontal_line"
+        android:layout_toStartOf="@id/vertical_line"
+        android:padding="8dp" />
+
+    <!-- Neither Urgent nor Important (Bottom-Right Quadrant) -->
+    <LinearLayout
+        android:id="@+id/not_urgent_not_important_quadrant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@id/horizontal_line"
+        android:layout_toEndOf="@id/vertical_line"
+        android:padding="8dp" />
+
+</RelativeLayout>

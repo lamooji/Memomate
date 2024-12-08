@@ -3,7 +3,7 @@ package com.cs407.memoMate
 
 import java.io.Serializable
 
-class TaskItem(var name: String) : Serializable {
+class Task(var name: String) : Serializable {
     var isChecked: Boolean = false
     var ddl: String = ""
     var note: String = ""
