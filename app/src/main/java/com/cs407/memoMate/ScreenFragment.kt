@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
-import kotlin.random.Random
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ScreenFragment : Fragment() {
 
@@ -22,20 +24,43 @@ class ScreenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Get ImageView from the inflated view
         val iconImageView: ImageView = view.findViewById(R.id.icon_image)
 
-        // hardcode rn for testing ((((((
-        val imageResources = listOf(
-            R.drawable.icon_1,
-            R.drawable.icon_2,
-            R.drawable.icon_3,
-        )
+        // Get the current day of the month
+        val currentDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
 
-        // TODO: display current date
-        val randomImageResId = imageResources.random()
+        // Dynamically get the resource ID for the image based on the day
+        val resourceName = "icon_$currentDay"
+        val resourceId = resources.getIdentifier(resourceName, "drawable", requireContext().packageName)
 
-        iconImageView.setImageResource(randomImageResId)
+        if (resourceId != 0) {
+            // If the resource exists, set it as the image
+            iconImageView.setImageResource(resourceId)
+        }
 
+        // Calendar Button Navigation
+        view.findViewById<LinearLayout>(R.id.calendar_button).setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, CalendarFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        // Matrix Button Navigation
+        view.findViewById<LinearLayout>(R.id.matrix_button).setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, UrgentImportantMatrixFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        // Today's Task Button Navigation
+        view.findViewById<LinearLayout>(R.id.todays_task_button).setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MainPageFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
+
 }
