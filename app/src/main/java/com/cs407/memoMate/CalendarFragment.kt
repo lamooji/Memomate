@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.CalendarView
@@ -136,25 +137,29 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
     }
 
     private fun loadTasksForCurrentMonth() {
-        CoroutineScope(Dispatchers.IO).launch {
-            // Fetch tasks for the current month
-            val currentMonthStr = currentMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"))
-            val tasks = taskDao.getTasksForMonth(currentMonthStr)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val tasks = taskDao.getAllTasks() // Fetch tasks from the database on a background thread
 
-            // Group tasks by date and calculate maximum importance for each date
             val groupedByDate = tasks.groupBy { task ->
-                task.ddl.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-            }
+                try {
+                    val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US)
+                    LocalDate.parse(task.ddl, formatter)
+                } catch (e: Exception) {
+                    null // Ignore invalid date formats
+                }
+            }.filterKeys { it != null } // Remove invalid dates
 
             taskImportanceMap.clear()
             groupedByDate.forEach { (date, tasksOnDate) ->
-                val maxImportance = tasksOnDate.maxOfOrNull { it.significance } ?: 0
-                taskImportanceMap[date] = maxImportance
+                val maxImportance = tasksOnDate.maxOfOrNull { it.importance } ?: 0
+                taskImportanceMap[date!!] = maxImportance
             }
 
             withContext(Dispatchers.Main) {
-                calendarView.notifyCalendarChanged() // Notify calendar to redraw
+                calendarView.notifyCalendarChanged() // Refresh calendar on the main thread
             }
         }
     }
+
+
 }

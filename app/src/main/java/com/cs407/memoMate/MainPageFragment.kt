@@ -4,19 +4,16 @@ package com.cs407.memoMate;
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cs407.memoMate.R
 
 class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
 
     private lateinit var taskAdapter: TaskAdapter
-    private val tasks = mutableListOf<TaskItem>()
+    private val tasks = mutableListOf<Task>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,11 +92,11 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
         isFinished: Boolean,
         note: String,
         importance: Int,
-        task: TaskItem?
+        task: Task?
     ) {
         if (task == null) {
             // Adding a new task
-            val newTask = TaskItem(name).apply {
+            val newTask = Task(name).apply {
                 this.isChecked = isFinished
                 this.ddl = ddl
                 this.note = note

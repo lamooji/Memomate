@@ -9,7 +9,7 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter(private val tasks: MutableList<TaskItem>) :
+class TaskAdapter(private val tasks: MutableList<Task>) :
     RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     // ViewHolder class for task items
@@ -51,8 +51,8 @@ class TaskAdapter(private val tasks: MutableList<TaskItem>) :
     override fun getItemCount(): Int = tasks.size
 
     // Function to add a new task
-    fun addTask(taskItem: TaskItem) {
-        tasks.add(taskItem)
+    fun addTask(task: Task) {
+        tasks.add(task)
         notifyItemInserted(tasks.size - 1)
     }
 }
