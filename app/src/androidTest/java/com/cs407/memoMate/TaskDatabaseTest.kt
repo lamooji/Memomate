@@ -14,7 +14,9 @@ import org.junit.runner.RunWith
 import com.cs407.memoMate.Data.NoteDatabase
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 
 @RunWith(AndroidJUnit4::class)
@@ -41,11 +43,15 @@ class NoteViewModelTest {
 
     @Test
     fun insertTaskAndRetrieveIt() = runBlocking {
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val currentDateString = dateFormat.format(Date())
         // Create a task
         val task = Task(
             noteId = 0, // ID will auto-generate
+            importance = 1,
             significance = 10,
-            ddl = Date(), // Current date
+            ddl = currentDateString, // Current date
             finished = false,
             noteTitle = "Test Task",
             noteAbstract = "This is a test task."
@@ -62,11 +68,15 @@ class NoteViewModelTest {
 
     @Test
     fun deleteTask() = runBlocking {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val currentDateString = dateFormat.format(Date())
+
         // Insert a task
         val task = Task(
             noteId = 0,
+            importance = 2,
             significance = 5,
-            ddl = Date(),
+            ddl = currentDateString,
             finished = false,
             noteTitle = "Task to Delete",
             noteAbstract = "This will be deleted."

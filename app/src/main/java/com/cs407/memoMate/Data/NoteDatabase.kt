@@ -41,15 +41,31 @@ interface TaskDao {
     @Query("SELECT COUNT(*) FROM task_list")
     suspend fun getTaskCount(): Int
 
-    @Query("SELECT * FROM task_list WHERE julianday(ddl) - julianday(:currentDate) < 3 AND julianday(ddl) >= julianday(:currentDate)")
+    @Query("""
+    SELECT * 
+    FROM task_list 
+    WHERE julianday(ddl) - julianday(:currentDate) < 3 
+      AND julianday(ddl) >= julianday(:currentDate)
+    """)
     suspend fun getTasksWithinThreeDays(currentDate: String): List<Task>
 
-    @Query("SELECT * FROM task_list WHERE julianday(ddl / 1000, 'unixepoch') - julianday(:currentDate) > 3 AND julianday(ddl / 1000, 'unixepoch') - julianday(:currentDate) <= 5")
+    @Query("""
+    SELECT * 
+    FROM task_list 
+    WHERE julianday(ddl) - julianday(:currentDate) > 3 
+      AND julianday(ddl) - julianday(:currentDate) <= 5
+    """)
     suspend fun getTasksBetweenThreeAndFiveDays(currentDate: String): List<Task>
 
-    @Query("SELECT * FROM task_list WHERE julianday(ddl / 1000, 'unixepoch') - julianday(:currentDate) > 7")
+    @Query("""
+    SELECT * 
+    FROM task_list 
+    WHERE julianday(ddl) - julianday(:currentDate) > 7
+    """)
     suspend fun getTasksAfterSevenDays(currentDate: String): List<Task>
+
 }
+
 
 @Database(entities = [Task::class], version = 2)
 abstract class NoteDatabase : RoomDatabase() {

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cs407.memoMate.Data.NoteDatabase
@@ -23,6 +24,8 @@ class ViewTaskListFragment : Fragment() {
     private lateinit var taskRecyclerView: RecyclerView
     private lateinit var taskListAdapter: TaskListAdapter
     private lateinit var database: NoteDatabase
+    private val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()) // Use consistent format
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,21 +33,11 @@ class ViewTaskListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_view_task_list, container, false)
 
-        // Retrieve the selected date
-        val selectedDateStr = arguments?.getString("selected_date")
-        val selectedDate: Date = selectedDateStr?.let {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            dateFormat.parse(it)
-        } ?: Date() // Default to today's date if no date is passed
-
+        // Retrieve the selected date or default to today's date
+        val selectedDate: String = arguments?.getString("selected_date") ?: dateFormat.format(Date())
 
         val sectionTitle = view.findViewById<TextView>(R.id.section_title)
-        if (selectedDate != null) {
-            val formattedDate = formatDateWithSuffix(selectedDate)
-            sectionTitle.text = "$formattedDate's Tasks"
-        } else {
-            sectionTitle.text = "Tasks List"
-        }
+        sectionTitle.text = "Tasks List"
 
         // Initialize RecyclerView
         taskRecyclerView = view.findViewById(R.id.task_recycler_view)
@@ -73,7 +66,9 @@ class ViewTaskListFragment : Fragment() {
         return view
     }
 
-    private fun formatDateWithSuffix(date: Date): String {
+    private fun formatDateWithSuffix(date: Date?): String {
+        if (date == null) return "Invalid Date" // Handle null case
+
         val dayFormat = SimpleDateFormat("d", Locale.getDefault())
         val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
         val day = dayFormat.format(date).toInt()
@@ -103,7 +98,7 @@ class ViewTaskListFragment : Fragment() {
 
         // Pre-fill fields with task details
         nameEditText.setText(task.noteTitle)
-        ddlEditText.setText(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(task.ddl))
+        ddlEditText.setText(task.ddl) // Directly set the `ddl` as a string
         importanceEditText.setText(task.significance.toString())
         finishedCheckbox.isChecked = task.finished
         noteEditText.setText(task.noteAbstract)
@@ -125,21 +120,25 @@ class ViewTaskListFragment : Fragment() {
             val updatedFinished = finishedCheckbox.isChecked
             val updatedNote = noteEditText.text.toString()
 
-            val updatedDdlDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(updatedDdl) ?: Date()
+            // Validate the `updatedDdl` format
+            if (!isValidDateFormat(updatedDdl)) {
+                ddlEditText.error = "Invalid date format. Use MM/dd/yyyy."
+                return@setOnClickListener
+            }
 
             // Update task in database
             GlobalScope.launch(Dispatchers.IO) {
                 database.taskDao().updateTask(
                     task.copy(
                         noteTitle = updatedName,
-                        ddl = updatedDdlDate,
+                        ddl = updatedDdl, // No parsing needed, use `ddl` as string
                         significance = updatedImportance,
                         finished = updatedFinished,
                         noteAbstract = updatedNote
                     )
                 )
                 withContext(Dispatchers.Main) {
-                    loadGroupedTasks(updatedDdlDate) // Refresh the UI
+                    loadGroupedTasks(updatedDdl) // Refresh the UI
                     dialog.dismiss()
                 }
             }
@@ -148,30 +147,64 @@ class ViewTaskListFragment : Fragment() {
         dialog.show()
     }
 
-    private fun loadGroupedTasks(selectedDate: Date) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val formattedSelectedDate = dateFormat.format(selectedDate)
+    // Helper function to validate date format
+    private fun isValidDateFormat(date: String): Boolean {
+        return try {
+            dateFormat.isLenient = false
+            dateFormat.parse(date) != null
+        } catch (e: Exception) {
+            false
+        }
+    }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val tasksWithinThreeDays = database.taskDao().getTasksWithinThreeDays(formattedSelectedDate)
-            val tasksBetweenThreeAndFiveDays = database.taskDao().getTasksBetweenThreeAndFiveDays(formattedSelectedDate)
-            val tasksAfterSevenDays = database.taskDao().getTasksAfterSevenDays(formattedSelectedDate)
-
-            withContext(Dispatchers.Main) {
+    private fun loadGroupedTasks(selectedDate: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val allTasks = database.taskDao().getAllTasks()
                 val groupedItems = mutableListOf<Any>()
-                if (tasksWithinThreeDays.isNotEmpty()) {
-                    groupedItems.add("Upcoming in 3 Days")
-                    groupedItems.addAll(tasksWithinThreeDays)
+
+                val selectedDateParsed = dateFormat.parse(selectedDate)
+
+                if (selectedDateParsed != null) {
+                    val tasksWithinThreeDays = allTasks.filter { task ->
+                        val taskDate = dateFormat.parse(task.ddl)
+                        taskDate != null && (taskDate.time - selectedDateParsed.time) / (1000 * 60 * 60 * 24) in 0..2
+                    }
+
+                    val tasksBetweenThreeAndFiveDays = allTasks.filter { task ->
+                        val taskDate = dateFormat.parse(task.ddl)
+                        taskDate != null && (taskDate.time - selectedDateParsed.time) / (1000 * 60 * 60 * 24) in 3..5
+                    }
+
+                    val tasksAfterSevenDays = allTasks.filter { task ->
+                        val taskDate = dateFormat.parse(task.ddl)
+                        taskDate != null && (taskDate.time - selectedDateParsed.time) / (1000 * 60 * 60 * 24) > 7
+                    }
+
+                    if (tasksWithinThreeDays.isNotEmpty()) {
+                        groupedItems.add("Upcoming in 3 Days")
+                        groupedItems.addAll(tasksWithinThreeDays)
+                    }
+                    if (tasksBetweenThreeAndFiveDays.isNotEmpty()) {
+                        groupedItems.add("Upcoming in 7 Days")
+                        groupedItems.addAll(tasksBetweenThreeAndFiveDays)
+                    }
+                    if (tasksAfterSevenDays.isNotEmpty()) {
+                        groupedItems.add("Upcoming in Future")
+                        groupedItems.addAll(tasksAfterSevenDays)
+                    }
+                } else {
+                    groupedItems.add("Invalid selected date.")
                 }
-                if (tasksBetweenThreeAndFiveDays.isNotEmpty()) {
-                    groupedItems.add("Upcoming in 7 Days")
-                    groupedItems.addAll(tasksBetweenThreeAndFiveDays)
+
+                withContext(Dispatchers.Main) {
+                    taskListAdapter.updateTaskItems(groupedItems)
                 }
-                if (tasksAfterSevenDays.isNotEmpty()) {
-                    groupedItems.add("Upcoming in Future")
-                    groupedItems.addAll(tasksAfterSevenDays)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("loadGroupedTasks", "Error: ${e.message}")
+                    taskListAdapter.updateTaskItems(listOf("Failed to load tasks."))
                 }
-                taskListAdapter.updateTaskItems(groupedItems)
             }
         }
     }
@@ -191,7 +224,8 @@ class ViewTaskListFragment : Fragment() {
         val newTask = Task(
             noteId = 0, // Default ID for a new task
             significance = 1, // Default significance level
-            ddl = Date(), // Default deadline as the current date
+            importance = 1,
+            ddl = "", // Default deadline as the current date
             finished = false, // Default unfinished state
             noteTitle = "", // Empty title for a new task
             noteAbstract = "" // Empty abstract for a new task

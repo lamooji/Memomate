@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingHorizontal="50dp">
+    android:paddingHorizontal="30dp">
 
     <!-- Calendar title -->
     <include
@@ -52,5 +52,26 @@
         app:layout_constraintTop_toBottomOf="@id/titlesContainer"
         app:layout_constraintVertical_bias="0.0"
         android:layout_marginTop="32dp"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/going_back_calendar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back"
+            android:paddingStart="12dp"
+            android:layout_marginEnd="285dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

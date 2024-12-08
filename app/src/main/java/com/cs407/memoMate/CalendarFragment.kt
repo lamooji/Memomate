@@ -104,6 +104,10 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             loadTasksForCurrentMonth()
             dateSelector.updateMonth(currentMonth)
         }
+
+        val backButton = view.findViewById<ImageView>(R.id.going_back_calendar)
+        backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+
     }
 
     private fun setupWeekTitle(titlesContainer: LinearLayout) {
@@ -175,7 +179,5 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             .addToBackStack(null)
             .commit()
     }
-
-
 
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,18 +33,11 @@ class SelectedTaskListFragment : Fragment() {
 
         // Retrieve the selected date
         val selectedDateStr = arguments?.getString("selected_date")
-        val selectedDate: Date? = selectedDateStr?.let {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            dateFormat.parse(it) // Convert string to Date
-        }
+        val selectedDate: String = selectedDateStr ?: getCurrentDate() // Default to today's date if not provided
 
         val sectionTitle = view.findViewById<TextView>(R.id.section_title)
-        if (selectedDate != null) {
-            val formattedDate = formatDateWithSuffix(selectedDate)
-            sectionTitle.text = "$formattedDate's Tasks"
-        } else {
-            sectionTitle.text = "Tasks List"
-        }
+        val formattedDate = formatDateWithSuffix(selectedDate)
+        sectionTitle.text = "$formattedDate's Tasks"
 
         // Initialize RecyclerView
         taskRecyclerView = view.findViewById(R.id.task_recycler_view)
@@ -53,9 +47,7 @@ class SelectedTaskListFragment : Fragment() {
 
         // Initialize database and load tasks
         database = NoteDatabase.getDatabase(requireContext())
-        if (selectedDate != null) {
-            loadTasksForSelectedDate(selectedDate)
-        }
+        loadTasksForSelectedDate(selectedDate)
 
         val backButton: ImageView = view.findViewById(R.id.back_button)
         val addTaskButton: ImageView = view.findViewById(R.id.add_task_button)
@@ -64,13 +56,24 @@ class SelectedTaskListFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-
         addTaskButton.visibility = View.GONE
 
         return view
     }
 
-    private fun formatDateWithSuffix(date: Date): String {
+    private fun formatDateWithSuffix(dateString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // Ensure this matches the input format
+        val date: Date? = try {
+            inputFormat.parse(dateString) // Attempt to parse the date
+        } catch (e: ParseException) {
+            Log.e("DateError", "Unparseable date: $dateString. Error: ${e.message}")
+            null
+        }
+
+        if (date == null) {
+            return "Invalid Date"
+        }
+
         val dayFormat = SimpleDateFormat("d", Locale.getDefault())
         val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
         val day = dayFormat.format(date).toInt()
@@ -87,17 +90,23 @@ class SelectedTaskListFragment : Fragment() {
         return "$month $day$suffix"
     }
 
-    private fun loadTasksForSelectedDate(selectedDate: Date) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val formattedDate = dateFormat.format(selectedDate)
-        Log.d("SelectedTaskListFragment", "Formatted date for filtering: $formattedDate")
+    private fun loadTasksForSelectedDate(selectedDate: String) {
+        val dateFormatInput = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()) // Input format for "ddl" in the database
+        val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // Desired output format for filtering
 
         GlobalScope.launch(Dispatchers.IO) {
             val allTasks = database.taskDao().getAllTasks() // Fetch all tasks
 
             // Filter tasks where ddl matches the selected date
             val filteredTasks = allTasks.filter { task ->
-                dateFormat.format(task.ddl) == formattedDate
+                try {
+                    val taskDate = dateFormatInput.parse(task.ddl) // Parse ddl as Date using the input format
+                    val formattedTaskDate = dateFormatOutput.format(taskDate!!) // Reformat the parsed Date
+                    formattedTaskDate == selectedDate // Compare with the selectedDate in "yyyy-MM-dd" format
+                } catch (e: ParseException) {
+                    Log.e("DateError", "Error parsing date: ${task.ddl}, Error: ${e.message}")
+                    false
+                }
             }
 
             withContext(Dispatchers.Main) {
@@ -109,5 +118,8 @@ class SelectedTaskListFragment : Fragment() {
         }
     }
 
-
+    private fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
 }

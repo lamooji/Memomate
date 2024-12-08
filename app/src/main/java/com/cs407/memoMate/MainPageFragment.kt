@@ -69,8 +69,6 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
                 .addToBackStack(null)
                 .commit()
         }
-
-
     }
 
     private fun showEditTaskDialog() {
