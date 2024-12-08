@@ -17,16 +17,16 @@ class MainActivity : AppCompatActivity() {
 
         //TODO: old main page, delete if no longer need for debugging
         // Load MainPageFragment by default
-//        if (savedInstanceState == null) {
-//            supportFragmentManager.beginTransaction()
-//                .replace(R.id.fragment_container, MainPageFragment())
-//                .commit()
-//        }
-
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ScreenFragment())
+           supportFragmentManager.beginTransaction()
+               .replace(R.id.fragment_container, MainPageFragment())
                 .commit()
         }
+
+//        if (savedInstanceState == null) {
+//            supportFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container, ScreenFragment())
+//                .commit()
+//        }
     }
 }

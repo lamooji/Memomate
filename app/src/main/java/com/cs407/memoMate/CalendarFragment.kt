@@ -8,7 +8,6 @@ import android.widget.TextView
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.CalendarView
@@ -19,36 +18,67 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
-import androidx.navigation.fragment.findNavController
-
+import com.cs407.memoMate.Data.NoteDatabase
+import com.cs407.memoMate.Data.Task
+import com.cs407.memoMate.Data.TaskDao
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Date
 
 class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
     private var selectedDate: LocalDate? = null
     private var currentMonth: YearMonth = YearMonth.now()
+    private lateinit var taskDao: TaskDao
+    private lateinit var calendarView: CalendarView
     private val dateFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
 
+    private val importanceColors = mapOf(
+        3 to R.color.high_importance,
+        2 to R.color.medium_importance,
+        1 to R.color.low_importance
+    )
+
+    private val taskImportanceMap = mutableMapOf<LocalDate, Int>()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val calendarView: CalendarView = view.findViewById(R.id.calendarView)
+        calendarView = view.findViewById(R.id.calendarView)
         val titlesContainer: LinearLayout = view.findViewById(R.id.titlesContainer)
         val monthTitle: TextView = view.findViewById(R.id.monthTitle)
         val btnNextMonth: ImageView = view.findViewById(R.id.btnNextMonth)
         val btnPrevMonth: ImageView = view.findViewById(R.id.btnPrevMonth)
 
-        setupWeekTitle(titlesContainer)
+        val db = NoteDatabase.getDatabase(requireContext())
+        taskDao = db.taskDao()
 
-        setupCalendar(calendarView, monthTitle)
+        Log.d("calendar", "Database initialized")
+
+        // Populate and load tasks
+        CoroutineScope(Dispatchers.IO).launch {
+            populateDatabaseWithDummyData(taskDao).join()
+            loadTasksForCurrentMonth()
+            withContext(Dispatchers.Main) {
+                setupWeekTitle(titlesContainer)
+                setupCalendar(calendarView, monthTitle)
+                calendarView.notifyCalendarChanged()
+            }
+        }
 
         btnNextMonth.setOnClickListener {
             currentMonth = currentMonth.plusMonths(1)
             updateMonthTitle(monthTitle)
             calendarView.scrollToMonth(currentMonth)
+            loadTasksForCurrentMonth()
         }
 
         btnPrevMonth.setOnClickListener {
             currentMonth = currentMonth.minusMonths(1)
             updateMonthTitle(monthTitle)
             calendarView.scrollToMonth(currentMonth)
+            loadTasksForCurrentMonth()
         }
     }
 
@@ -74,56 +104,15 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
         calendarView.setup(startMonth, endMonth, daysOfWeek().first())
         calendarView.scrollToMonth(currentMonth)
 
-        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-            override fun create(view: View): DayViewContainer {
-                return DayViewContainer(view)
-            }
+        val dateSelector = DateSelector(
+            context = requireContext(),
+            calendarView = calendarView,
+            todayDrawable = R.drawable.bg_today,
+            importanceColors = importanceColors,
+            taskImportanceMap = taskImportanceMap
+        )
 
-            override fun bind(container: DayViewContainer, data: CalendarDay) {
-                container.textView.text = data.date.dayOfMonth.toString()
-
-                val today = LocalDate.now()
-
-                when {
-                    data.date == today -> {
-                        container.textView.setBackgroundResource(R.drawable.bg_today)
-                        container.textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-                    }
-                    data.date.month != currentMonth.month -> {
-                        container.textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
-                        container.textView.alpha = 0.3f
-                    }
-                    else -> {
-                        container.textView.setBackgroundResource(R.drawable.bg_normal)
-                        container.textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-                        container.textView.alpha = 1f
-                    }
-                }
-
-//                container.textView.setOnClickListener {
-//                    if (data.date.month == currentMonth.month) {
-//                        val previousDate = selectedDate
-//                        selectedDate = data.date
-//                        previousDate?.let { calendarView.notifyDateChanged(it) }
-//                        selectedDate?.let { calendarView.notifyDateChanged(it) }
-//                    }
-//                }
-
-                container.textView.setOnClickListener {
-                    selectedDate = data.date
-
-                    // Navigate to MainPageFragment
-                    val mainPageFragment = MainPageFragment()
-
-                    // Use FragmentManager to replace the current fragment
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, mainPageFragment)
-                        .addToBackStack(null) // Add to back stack for navigation history
-                        .commit()
-                }
-
-            }
-        }
+        calendarView.dayBinder = dateSelector
 
         updateMonthTitle(monthTitle)
     }
@@ -132,7 +121,90 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
         monthTitle.text = currentMonth.format(dateFormatter)
     }
 
-    inner class DayViewContainer(view: View) : ViewContainer(view) {
-        val textView: TextView = view.findViewById(R.id.calendarDayText)
+    private fun loadTasksForCurrentMonth() {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Fetch tasks for the current month
+            val currentMonthStr = currentMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"))
+            val tasks = taskDao.getTasksForMonth(currentMonthStr)
+
+            // Group tasks by date and calculate maximum importance for each date
+            val groupedByDate = tasks.groupBy { task ->
+                task.ddl.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            }
+
+            taskImportanceMap.clear()
+            groupedByDate.forEach { (date, tasksOnDate) ->
+                val maxImportance = tasksOnDate.maxOfOrNull { it.significance } ?: 0
+                taskImportanceMap[date] = maxImportance
+            }
+
+            // Notify calendar on the main thread
+            withContext(Dispatchers.Main) {
+                calendarView.notifyCalendarChanged()
+            }
+        }
+    }
+
+
+    private fun populateDatabaseWithDummyData(taskDao: TaskDao): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
+            val dummyTasks = listOf(
+                Task(
+                    noteId = 0, // Auto-generate ID
+                    noteTitle = "High Priority Task",
+                    noteAbstract = "This is a high priority task description.",
+                    ddl = Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000)), // 2 days from now
+                    significance = 3,
+                    finished = false
+                ),
+                Task(
+                    noteId = 0,
+                    noteTitle = "Medium Priority Task",
+                    noteAbstract = "This is a medium priority task description.",
+                    ddl = Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)), // 5 days from now
+                    significance = 2,
+                    finished = false
+                ),
+                Task(
+                    noteId = 0,
+                    noteTitle = "Low Priority Task",
+                    noteAbstract = "This is a low priority task description.",
+                    ddl = Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000)), // 10 days from now
+                    significance = 1,
+                    finished = false
+                ),
+                Task(
+                    noteId = 0,
+                    noteTitle = "Completed Task",
+                    noteAbstract = "This task is already finished.",
+                    ddl = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
+                    significance = 3,
+                    finished = false
+                ),
+                Task(
+                    noteId = 0,
+                    noteTitle = "high Task",
+                    noteAbstract = "This task is already finished.",
+                    ddl = Date(System.currentTimeMillis() + (30 * 24 * 60 * 60 * 1000)), // 30 day ago
+                    significance = 3,
+                    finished = false
+                ),
+                Task(
+                    noteId = 0,
+                    noteTitle = "high Task",
+                    noteAbstract = "This task is already finished.",
+                    ddl = Date(System.currentTimeMillis() + (27 * 24 * 60 * 60 * 1000)), // 30 day ago
+                    significance = 3,
+                    finished = false
+                )
+
+            )
+
+            dummyTasks.forEach { task ->
+                taskDao.insertTask(task)
+            }
+
+            Log.d("calendar", "Inserted ${dummyTasks.size} dummy tasks into the database.")
+        }
     }
 }
