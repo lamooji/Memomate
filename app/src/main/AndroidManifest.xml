@@ -22,8 +22,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FragmentTestActivity"
-            android:exported="true" />
+
+        <!-- add dummy task provider for demonstration purpose -->
+        <provider
+            android:name=".DummyDataInitializer"
+            android:authorities="com.cs407.memoMate.initializer"
+            android:exported="false"
+            android:initOrder="100" />
+
+
     </application>
 
 </manifest>
