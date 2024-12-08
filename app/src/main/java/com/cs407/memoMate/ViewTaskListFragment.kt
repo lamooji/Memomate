@@ -5,9 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,9 +16,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
+import java.util.*
 
 class ViewTaskListFragment : Fragment() {
 
@@ -36,64 +32,55 @@ class ViewTaskListFragment : Fragment() {
 
         // Retrieve the selected date
         val selectedDateStr = arguments?.getString("selected_date")
+        val selectedDate: Date = selectedDateStr?.let {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            dateFormat.parse(it)
+        } ?: Date() // Default to today's date if no date is passed
 
-        // Parse the string into a Date object
-        val selectedDate: Date? = selectedDateStr?.let {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // Adjust the format to match your input
-            dateFormat.parse(it) // Returns a Date object or null if parsing fails
-        }
 
         val sectionTitle = view.findViewById<TextView>(R.id.section_title)
-
-        // Update the TextView based on the selected date
         if (selectedDate != null) {
             val formattedDate = formatDateWithSuffix(selectedDate)
             sectionTitle.text = "$formattedDate's Tasks"
         } else {
-            sectionTitle.text = "Tasks List" // Default title
+            sectionTitle.text = "Tasks List"
         }
 
         // Initialize RecyclerView
         taskRecyclerView = view.findViewById(R.id.task_recycler_view)
         taskRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Initialize adapter with an empty list
-        taskListAdapter = TaskListAdapter(mutableListOf())
+        // Initialize adapter with callbacks for delete and edit
+        taskListAdapter = TaskListAdapter(
+            taskItems = mutableListOf(),
+            onDeleteTask = { task, position -> deleteTask(task, position) },
+            onEditTask = { task -> showEditTaskDialog(task) } // Updated to show edit dialog
+        )
         taskRecyclerView.adapter = taskListAdapter
 
         // Initialize database
         database = NoteDatabase.getDatabase(requireContext())
-        Log.d("ViewTaskListFragment", "Database initialized: $database")
-
-        // Load grouped tasks from database
         if (selectedDate != null) {
             loadGroupedTasks(selectedDate)
         }
 
         val addTaskButton = view.findViewById<ImageView>(R.id.add_task_button)
-        addTaskButton.setOnClickListener {
-            openAddTaskDialog()
-        }
+        addTaskButton.setOnClickListener { showAddTaskDialog() } // Separate dialog for adding tasks
 
         val backButton = view.findViewById<ImageView>(R.id.back_button)
-        backButton.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
+        backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
 
         return view
     }
 
-
     private fun formatDateWithSuffix(date: Date): String {
         val dayFormat = SimpleDateFormat("d", Locale.getDefault())
         val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
-
         val day = dayFormat.format(date).toInt()
         val month = monthFormat.format(date)
 
-        // Determine the suffix for the day
         val suffix = when {
-            day in 11..13 -> "th" // Special case for 11th, 12th, 13th
+            day in 11..13 -> "th"
             day % 10 == 1 -> "st"
             day % 10 == 2 -> "nd"
             day % 10 == 3 -> "rd"
@@ -103,98 +90,112 @@ class ViewTaskListFragment : Fragment() {
         return "$month $day$suffix"
     }
 
+    private fun showEditTaskDialog(task: Task) {
+        // Inflate the layout
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.add_task_menu, null)
 
-    private fun openAddTaskDialog() {
-        // Create an instance of the dialog
-        val addTaskDialog = AddTaskMenu.newInstance()
+        val nameEditText = dialogView.findViewById<EditText>(R.id.name_edit_text)
+        val ddlEditText = dialogView.findViewById<EditText>(R.id.ddl_edit_text)
+        val importanceEditText = dialogView.findViewById<EditText>(R.id.importance_edit_text)
+        val finishedCheckbox = dialogView.findViewById<CheckBox>(R.id.finished_checkbox)
+        val noteEditText = dialogView.findViewById<EditText>(R.id.note_edit_text)
+        val saveButton = dialogView.findViewById<Button>(R.id.add_button)
 
-        // Set the listener to handle the callback
-        addTaskDialog.setListener(object : AddTaskMenu.TaskDialogListener {
-            override fun onTaskAdded(
-                name: String,
-                ddl: String,
-                isFinished: Boolean,
-                note: String,
-                importance: Int,
-                task: TaskItem?
-            ) {
-                // Convert the provided data into a Task object
-                val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val ddlDate = dateFormatter.parse(ddl) ?: Date()
+        // Pre-fill fields with task details
+        nameEditText.setText(task.noteTitle)
+        ddlEditText.setText(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(task.ddl))
+        importanceEditText.setText(task.significance.toString())
+        finishedCheckbox.isChecked = task.finished
+        noteEditText.setText(task.noteAbstract)
 
-                val newTask = Task(
-                    noteId = 0, // Auto-generate ID
-                    noteTitle = name,
-                    significance = importance,
-                    ddl = ddlDate,
-                    finished = isFinished,
-                    noteAbstract = note
+        // Change button text to "Save"
+        saveButton.text = "Save"
+
+        val dialog = android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Edit Task")
+            .setView(dialogView)
+            .setPositiveButton(null, null) // Use custom listener
+            .setNegativeButton("Cancel", null) // Dismiss dialog on cancel
+            .create()
+
+        saveButton.setOnClickListener {
+            val updatedName = nameEditText.text.toString()
+            val updatedDdl = ddlEditText.text.toString()
+            val updatedImportance = importanceEditText.text.toString().toIntOrNull() ?: 1
+            val updatedFinished = finishedCheckbox.isChecked
+            val updatedNote = noteEditText.text.toString()
+
+            val updatedDdlDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(updatedDdl) ?: Date()
+
+            // Update task in database
+            GlobalScope.launch(Dispatchers.IO) {
+                database.taskDao().updateTask(
+                    task.copy(
+                        noteTitle = updatedName,
+                        ddl = updatedDdlDate,
+                        significance = updatedImportance,
+                        finished = updatedFinished,
+                        noteAbstract = updatedNote
+                    )
                 )
-
-                // Add the task to the database and the RecyclerView
-                addTask(newTask)
+                withContext(Dispatchers.Main) {
+                    loadGroupedTasks(updatedDdlDate) // Refresh the UI
+                    dialog.dismiss()
+                }
             }
-        })
+        }
 
-        // Show the dialog
-        addTaskDialog.show(parentFragmentManager, "AddTaskMenu")
+        dialog.show()
     }
 
     private fun loadGroupedTasks(selectedDate: Date) {
-
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val formattedSelectedDate = dateFormat.format(selectedDate)
 
         GlobalScope.launch(Dispatchers.IO) {
-
-            val allTasks = database.taskDao().getAllTasks()
-            Log.d("ViewTaskListFragment", "All tasks: ${allTasks.size}")
-            allTasks.forEach { Log.d("ViewTaskListFragment", "Task: ${it.noteTitle}, Deadline: ${it.ddl}") }
-
-            // Query tasks from database
             val tasksWithinThreeDays = database.taskDao().getTasksWithinThreeDays(formattedSelectedDate)
             val tasksBetweenThreeAndFiveDays = database.taskDao().getTasksBetweenThreeAndFiveDays(formattedSelectedDate)
             val tasksAfterSevenDays = database.taskDao().getTasksAfterSevenDays(formattedSelectedDate)
 
-            tasksWithinThreeDays.forEach { Log.d("ViewTaskListFragment", "Task within 3 days: ${it.noteTitle}") }
-            tasksBetweenThreeAndFiveDays.forEach { Log.d("ViewTaskListFragment", "Task within 3-5 days: ${it.noteTitle}") }
-            tasksAfterSevenDays.forEach { Log.d("ViewTaskListFragment", "Task after 7 days: ${it.noteTitle}") }
-
             withContext(Dispatchers.Main) {
                 val groupedItems = mutableListOf<Any>()
-
-                // Add "Upcoming in 3 Days" section
                 if (tasksWithinThreeDays.isNotEmpty()) {
-                    groupedItems.add("Upcoming in 3 Days") // Header as a String
-                    groupedItems.addAll(tasksWithinThreeDays) // Tasks
+                    groupedItems.add("Upcoming in 3 Days")
+                    groupedItems.addAll(tasksWithinThreeDays)
                 }
-
-                // Add "Upcoming in 7 Days" section
                 if (tasksBetweenThreeAndFiveDays.isNotEmpty()) {
                     groupedItems.add("Upcoming in 7 Days")
                     groupedItems.addAll(tasksBetweenThreeAndFiveDays)
                 }
-
-                // Add "Upcoming in Future" section
                 if (tasksAfterSevenDays.isNotEmpty()) {
                     groupedItems.add("Upcoming in Future")
                     groupedItems.addAll(tasksAfterSevenDays)
                 }
-
-                // Update RecyclerView with grouped items
                 taskListAdapter.updateTaskItems(groupedItems)
             }
         }
     }
 
-    private fun addTask(task: Task) {
+    private fun deleteTask(task: Task, position: Int) {
+        Log.d("DeleteTask", "Deleting task: ${task.noteId} - ${task.noteTitle}")
+
         GlobalScope.launch(Dispatchers.IO) {
-            database.taskDao().insertTask(task)
+            database.taskDao().deleteTask(task) // Delete task from database
             withContext(Dispatchers.Main) {
-                // Add task to RecyclerView
-                taskListAdapter.addTask(task)
-                loadGroupedTasks(task.ddl)
+                taskListAdapter.removeTask(position) // Remove task from adapter and update UI
             }
         }
+    }
+
+    private fun showAddTaskDialog() {
+        val newTask = Task(
+            noteId = 0, // Default ID for a new task
+            significance = 1, // Default significance level
+            ddl = Date(), // Default deadline as the current date
+            finished = false, // Default unfinished state
+            noteTitle = "", // Empty title for a new task
+            noteAbstract = "" // Empty abstract for a new task
+        )
+        showEditTaskDialog(newTask)
     }
 }

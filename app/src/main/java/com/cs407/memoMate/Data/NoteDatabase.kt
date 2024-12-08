@@ -69,6 +69,9 @@ interface TaskDao {
     @Query("SELECT COUNT(*) FROM task_list")
     suspend fun getTaskCount(): Int
 
+    @Query("SELECT * FROM task_list WHERE DATE(ddl) = DATE(:date)")
+    suspend fun getTasksByDate(date: String): List<Task>
+
     //usage:
     // 1) get current data :
     //          val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

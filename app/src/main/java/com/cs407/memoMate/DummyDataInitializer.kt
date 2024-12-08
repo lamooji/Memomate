@@ -11,8 +11,10 @@ import com.cs407.memoMate.Data.TaskDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 class DummyDataInitializer : ContentProvider() {
 
@@ -32,6 +34,8 @@ class DummyDataInitializer : ContentProvider() {
     }
 
     public suspend fun populateDatabaseWithDummyData(taskDao: TaskDao) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
         val baseDate = Calendar.getInstance().apply {
             set(Calendar.YEAR, 2024)
             set(Calendar.MONTH, Calendar.DECEMBER)
@@ -44,10 +48,18 @@ class DummyDataInitializer : ContentProvider() {
 
         val dummyTasks = listOf(
             Task(
-                noteId = 0, // Auto-generate ID
+                noteId = 0,
                 noteTitle = "Buy groceries",
                 noteAbstract = "This is a Buy groceries description.",
-                ddl = Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000)), // 2 days from now
+                ddl = dateFormat.parse(dateFormat.format(Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000))))!!, // 2 days from now
+                significance = 3,
+                finished = false
+            ),
+            Task(
+                noteId = 0,
+                noteTitle = "Do homework",
+                noteAbstract = "This is a homework description.",
+                ddl = dateFormat.parse(dateFormat.format(Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000))))!!, // 2 days from now
                 significance = 3,
                 finished = false
             ),
@@ -55,7 +67,7 @@ class DummyDataInitializer : ContentProvider() {
                 noteId = 0,
                 noteTitle = "Cardio at 6pm",
                 noteAbstract = "This is a medium priority task description.",
-                ddl = Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)), // 5 days from now
+                ddl = dateFormat.parse(dateFormat.format(Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000))))!!, // 5 days from now
                 significance = 2,
                 finished = false
             ),
@@ -63,7 +75,7 @@ class DummyDataInitializer : ContentProvider() {
                 noteId = 0,
                 noteTitle = "Dinner with bae",
                 noteAbstract = "This is a Dinner with bae task description.",
-                ddl = Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000)), // 10 days from now
+                ddl = dateFormat.parse(dateFormat.format(Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000))))!!, // 10 days from now
                 significance = 1,
                 finished = false
             ),
@@ -71,18 +83,18 @@ class DummyDataInitializer : ContentProvider() {
                 noteId = 0,
                 noteTitle = "Pay college fees",
                 noteAbstract = "This task is Pay college fees finished.",
-                ddl = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
+                ddl = dateFormat.parse(dateFormat.format(Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000))))!!, // 1 day ago
                 significance = 3,
                 finished = false
             ),
             Task(
                 noteId = 0,
                 noteTitle = "Call Insurance Company",
-                noteAbstract = "This task does not wanted to be finished.",
-                ddl  = Calendar.getInstance().apply {
+                noteAbstract = "This task does not want to be finished.",
+                ddl = dateFormat.parse(dateFormat.format(Calendar.getInstance().apply {
                     time = baseDate
                     add(Calendar.DAY_OF_MONTH, 27)
-                }.time, // 30 days later
+                }.time))!!, // 27 days later
                 significance = 3,
                 finished = false
             ),
@@ -90,27 +102,24 @@ class DummyDataInitializer : ContentProvider() {
                 noteId = 0,
                 noteTitle = "Go for a 30-Minute Walk",
                 noteAbstract = "This task is not finished.",
-                ddl = Calendar.getInstance().apply {
+                ddl = dateFormat.parse(dateFormat.format(Calendar.getInstance().apply {
                     time = baseDate
                     add(Calendar.DAY_OF_MONTH, 22)
-                }.time, // 21 days later
+                }.time))!!, // 22 days later
                 significance = 1,
                 finished = false
-            )
-            ,
+            ),
             Task(
                 noteId = 0,
                 noteTitle = "Schedule Dentist Appointment",
                 noteAbstract = "This task is not yet finished.",
-                ddl = Calendar.getInstance().apply {
+                ddl = dateFormat.parse(dateFormat.format(Calendar.getInstance().apply {
                     time = baseDate
                     add(Calendar.DAY_OF_MONTH, 30)
-                }.time, // 20 days later
+                }.time))!!, // 30 days later
                 significance = 2,
                 finished = false
             )
-
-
         )
 
         dummyTasks.forEach { task ->

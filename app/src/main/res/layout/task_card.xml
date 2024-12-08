@@ -48,4 +48,13 @@
         android:contentDescription="Edit Task"
         android:layout_marginEnd="8dp"
         android:layout_gravity="center_vertical" />
+
+    <!-- Delete Icon -->
+    <ImageView
+        android:id="@+id/delete_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="Delete"
+        android:layout_marginStart="8dp" />
 </LinearLayout>

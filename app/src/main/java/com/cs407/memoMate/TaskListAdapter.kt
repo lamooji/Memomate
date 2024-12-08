@@ -8,9 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.cs407.memoMate.Data.Task
 
-
-class TaskListAdapter(private val taskItems: MutableList<Any>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TaskListAdapter(
+    private val taskItems: MutableList<Any>,
+    private val onDeleteTask: (Task, Int) -> Unit, // Pass position for accurate updates
+    private val onEditTask: (Task) -> Unit         // Callback for edit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val TYPE_HEADER = 0
@@ -44,13 +46,24 @@ class TaskListAdapter(private val taskItems: MutableList<Any>) :
             }
             is Task -> {
                 val task = item
-                (holder as TaskViewHolder).taskName.text = task.noteTitle
+                val taskHolder = holder as TaskViewHolder
+                taskHolder.taskName.text = task.noteTitle
 
-                // 根据优先级设置背景
+                // Set priority background based on significance
                 when (task.significance) {
-                    1 -> holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_high)
-                    2 -> holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_medium)
-                    3 -> holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_low)
+                    1 -> taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_low)
+                    2 -> taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_medium)
+                    3 -> taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_high)
+                }
+
+                // Set click listener for delete icon
+                taskHolder.deleteIcon.setOnClickListener {
+                    onDeleteTask(task, position) // Pass task and position to fragment
+                }
+
+                // Set click listener for edit icon
+                taskHolder.editIcon.setOnClickListener {
+                    onEditTask(task) // Notify fragment to edit the task
                 }
             }
         }
@@ -64,11 +77,17 @@ class TaskListAdapter(private val taskItems: MutableList<Any>) :
         notifyDataSetChanged()
     }
 
-    fun addTask(task: Task) {
-        taskItems.add(task)
-        notifyItemInserted(taskItems.size - 1)
-    }
+    fun removeTask(position: Int) {
+        taskItems.removeAt(position)
+        notifyItemRemoved(position)
 
+        // Remove section header if no tasks remain under it
+        if (position > 0 && taskItems[position - 1] is String &&
+            (position >= taskItems.size || taskItems[position] is String)) {
+            taskItems.removeAt(position - 1)
+            notifyItemRemoved(position - 1)
+        }
+    }
 
     class HeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val headerTitle: TextView = itemView.findViewById(R.id.section_title)
@@ -77,7 +96,7 @@ class TaskListAdapter(private val taskItems: MutableList<Any>) :
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val taskName: TextView = itemView.findViewById(R.id.task_name)
         val taskPriority: TextView = itemView.findViewById(R.id.task_priority)
+        val deleteIcon: ImageView = itemView.findViewById(R.id.delete_icon) // Delete icon
+        val editIcon: ImageView = itemView.findViewById(R.id.edit_icon)     // Edit icon
     }
 }
-
-

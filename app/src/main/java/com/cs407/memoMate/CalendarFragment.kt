@@ -166,7 +166,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
         }
 
         parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, ViewTaskListFragment().apply {
+            .replace(R.id.fragment_container, SelectedTaskListFragment().apply {
                 arguments = bundle
             })
             .addToBackStack(null)
