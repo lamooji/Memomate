@@ -1,0 +1,119 @@
+Index: ../Memomate/app/src/main/java/com/cs407/memoMate/CalendarFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.cs407.memoMate\n\nimport android.os.Bundle\nimport android.util.Log\nimport android.view.View\nimport android.widget.LinearLayout\nimport android.widget.TextView\nimport android.widget.ImageView\nimport androidx.core.content.ContextCompat\nimport androidx.fragment.app.Fragment\nimport androidx.navigation.Navigation\nimport com.kizitonwose.calendar.core.CalendarDay\nimport com.kizitonwose.calendar.core.daysOfWeek\nimport com.kizitonwose.calendar.view.CalendarView\nimport com.kizitonwose.calendar.view.MonthDayBinder\nimport com.kizitonwose.calendar.view.ViewContainer\nimport java.time.LocalDate\nimport java.time.YearMonth\nimport java.time.format.DateTimeFormatter\nimport java.time.format.TextStyle\nimport java.util.Locale\nimport androidx.navigation.fragment.findNavController\n\n\nclass CalendarFragment : Fragment(R.layout.fragment_calendar) {\n\n    private var selectedDate: LocalDate? = null\n    private var currentMonth: YearMonth = YearMonth.now()\n    private val dateFormatter = DateTimeFormatter.ofPattern(\"MMMM yyyy\", Locale.getDefault())\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        val calendarView: CalendarView = view.findViewById(R.id.calendarView)\n        val titlesContainer: LinearLayout = view.findViewById(R.id.titlesContainer)\n        val monthTitle: TextView = view.findViewById(R.id.monthTitle)\n        val btnNextMonth: ImageView = view.findViewById(R.id.btnNextMonth)\n        val btnPrevMonth: ImageView = view.findViewById(R.id.btnPrevMonth)\n\n        setupWeekTitle(titlesContainer)\n\n        setupCalendar(calendarView, monthTitle)\n\n        btnNextMonth.setOnClickListener {\n            currentMonth = currentMonth.plusMonths(1)\n            updateMonthTitle(monthTitle)\n            calendarView.scrollToMonth(currentMonth)\n        }\n\n        btnPrevMonth.setOnClickListener {\n            currentMonth = currentMonth.minusMonths(1)\n            updateMonthTitle(monthTitle)\n            calendarView.scrollToMonth(currentMonth)\n        }\n    }\n\n    private fun setupWeekTitle(titlesContainer: LinearLayout) {\n        val daysOfWeek = daysOfWeek()\n        titlesContainer.removeAllViews()\n        daysOfWeek.forEach { dayOfWeek ->\n            val textView = TextView(context).apply {\n                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)\n                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())\n                gravity = android.view.Gravity.CENTER\n                textSize = 14f\n                setTextColor(ContextCompat.getColor(requireContext(), R.color.black))\n            }\n            titlesContainer.addView(textView)\n        }\n    }\n\n    private fun setupCalendar(calendarView: CalendarView, monthTitle: TextView) {\n        val startMonth = currentMonth.minusMonths(10)\n        val endMonth = currentMonth.plusMonths(10)\n\n        calendarView.setup(startMonth, endMonth, daysOfWeek().first())\n        calendarView.scrollToMonth(currentMonth)\n\n        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {\n            override fun create(view: View): DayViewContainer {\n                return DayViewContainer(view)\n            }\n\n            override fun bind(container: DayViewContainer, data: CalendarDay) {\n                container.textView.text = data.date.dayOfMonth.toString()\n\n                val today = LocalDate.now()\n\n                when {\n                    data.date == today -> {\n                        container.textView.setBackgroundResource(R.drawable.bg_today)\n                        container.textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))\n                    }\n                    data.date.month != currentMonth.month -> {\n                        container.textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))\n                        container.textView.alpha = 0.3f\n                    }\n                    else -> {\n                        container.textView.setBackgroundResource(R.drawable.bg_normal)\n                        container.textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))\n                        container.textView.alpha = 1f\n                    }\n                }\n\n//                container.textView.setOnClickListener {\n//                    if (data.date.month == currentMonth.month) {\n//                        val previousDate = selectedDate\n//                        selectedDate = data.date\n//                        previousDate?.let { calendarView.notifyDateChanged(it) }\n//                        selectedDate?.let { calendarView.notifyDateChanged(it) }\n//                    }\n//                }\n\n                container.textView.setOnClickListener {\n                    selectedDate = data.date\n\n                    // Navigate to MainPageFragment\n                    val mainPageFragment = MainPageFragment()\n\n                    // Use FragmentManager to replace the current fragment\n                    parentFragmentManager.beginTransaction()\n                        .replace(R.id.fragment_container, mainPageFragment)\n                        .addToBackStack(null) // Add to back stack for navigation history\n                        .commit()\n                }\n\n            }\n        }\n\n        updateMonthTitle(monthTitle)\n    }\n\n    private fun updateMonthTitle(monthTitle: TextView) {\n        monthTitle.text = currentMonth.format(dateFormatter)\n    }\n\n    inner class DayViewContainer(view: View) : ViewContainer(view) {\n        val textView: TextView = view.findViewById(R.id.calendarDayText)\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Memomate/app/src/main/java/com/cs407/memoMate/CalendarFragment.kt b/../Memomate/app/src/main/java/com/cs407/memoMate/CalendarFragment.kt
+--- a/../Memomate/app/src/main/java/com/cs407/memoMate/CalendarFragment.kt	(revision fb7c7c787502e09d325216400cc60a71569e8565)
++++ b/../Memomate/app/src/main/java/com/cs407/memoMate/CalendarFragment.kt	(date 1733615982254)
+@@ -20,6 +20,13 @@
+ import java.time.format.TextStyle
+ import java.util.Locale
+ import androidx.navigation.fragment.findNavController
++import com.cs407.memoMate.Data.Task
++import com.cs407.memoMate.Data.TaskDao
++import kotlinx.coroutines.CoroutineScope
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.Job
++import kotlinx.coroutines.launch
++import java.util.Date
+ 
+ 
+ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
+@@ -50,6 +57,8 @@
+             updateMonthTitle(monthTitle)
+             calendarView.scrollToMonth(currentMonth)
+         }
++
++        populateDatabaseWithDummyData()
+     }
+ 
+     private fun setupWeekTitle(titlesContainer: LinearLayout) {
+@@ -100,14 +109,6 @@
+                     }
+                 }
+ 
+-//                container.textView.setOnClickListener {
+-//                    if (data.date.month == currentMonth.month) {
+-//                        val previousDate = selectedDate
+-//                        selectedDate = data.date
+-//                        previousDate?.let { calendarView.notifyDateChanged(it) }
+-//                        selectedDate?.let { calendarView.notifyDateChanged(it) }
+-//                    }
+-//                }
+ 
+                 container.textView.setOnClickListener {
+                     selectedDate = data.date
+@@ -135,4 +136,52 @@
+     inner class DayViewContainer(view: View) : ViewContainer(view) {
+         val textView: TextView = view.findViewById(R.id.calendarDayText)
+     }
++
++    //demo propose
++    private fun populateDatabaseWithDummyData(taskDao: TaskDao) : Job {
++        return CoroutineScope(Dispatchers.IO).launch {
++            val dummyTasks = listOf(
++                Task(
++                    noteId = 0, // Auto-generate ID
++                    noteTitle = "High Priority Task",
++                    noteAbstract = "This is a high priority task description.",
++                    ddl = Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000)), // 2 days from now
++                    significance = 3,
++                    finished = false
++                ),
++                Task(
++                    noteId = 0,
++                    noteTitle = "Medium Priority Task",
++                    noteAbstract = "This is a medium priority task description.",
++                    ddl = Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)), // 5 days from now
++                    significance = 2,
++                    finished = false
++                ),
++                Task(
++                    noteId = 0,
++                    noteTitle = "Low Priority Task",
++                    noteAbstract = "This is a low priority task description.",
++                    ddl = Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000)), // 10 days from now
++                    significance = 1,
++                    finished = false
++                ),
++                Task(
++                    noteId = 0,
++                    noteTitle = "Completed Task",
++                    noteAbstract = "This task is already finished.",
++                    ddl = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
++                    significance = 3,
++                    finished = false
++                )
++            )
++
++            // Insert tasks into the database
++            dummyTasks.forEach { task ->
++                val resultId = taskDao.insertTask(task) // Get the auto-generated ID
++                Log.d("DatabasePopulator", "Inserted task with ID: $resultId, Title: ${task.noteTitle}")
++            }
++
++            Log.d("DatabasePopulator", "Inserted ${dummyTasks.size} dummy tasks into the database")
++
++        }
+ }
+Index: ../Memomate/.idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"GradleMigrationSettings\" migrationVersion=\"1\" />\n  <component name=\"GradleSettings\">\n    <option name=\"linkedExternalProjectsSettings\">\n      <GradleProjectSettings>\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\n        <option name=\"gradleJvm\" value=\"#GRADLE_LOCAL_JAVA_HOME\" />\n        <option name=\"modules\">\n          <set>\n            <option value=\"$PROJECT_DIR$\" />\n            <option value=\"$PROJECT_DIR$/app\" />\n          </set>\n        </option>\n        <option name=\"resolveExternalAnnotations\" value=\"false\" />\n      </GradleProjectSettings>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Memomate/.idea/gradle.xml b/../Memomate/.idea/gradle.xml
+--- a/../Memomate/.idea/gradle.xml	(revision fb7c7c787502e09d325216400cc60a71569e8565)
++++ b/../Memomate/.idea/gradle.xml	(date 1733615719317)
+@@ -4,6 +4,7 @@
+   <component name="GradleSettings">
+     <option name="linkedExternalProjectsSettings">
+       <GradleProjectSettings>
++        <option name="testRunner" value="CHOOSE_PER_TEST" />
+         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
+         <option name="modules">
