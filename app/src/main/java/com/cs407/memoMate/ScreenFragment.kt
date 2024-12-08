@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
@@ -61,6 +62,15 @@ class ScreenFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+
+        //GPT
+        val askAIButton = view.findViewById<LinearLayout>(R.id.ask_ai_button)
+        askAIButton.setOnClickListener {
+            val chatOverlayDialog = ChatOverlayDialogFragment()
+            chatOverlayDialog.show(parentFragmentManager, "ChatOverlayDialog")
+        }
+
+
     }
 
 }
