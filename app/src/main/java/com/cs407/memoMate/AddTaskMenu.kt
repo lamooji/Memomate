@@ -11,7 +11,7 @@ import com.cs407.memoMate.databinding.AddTaskMenuBinding
 class AddTaskMenu : DialogFragment() {
     private var _binding: AddTaskMenuBinding? = null
     private val binding get() = _binding!!
-    private var task: TaskItem? = null
+    private var task: Task? = null
 
     interface TaskDialogListener {
         fun onTaskAdded(
@@ -20,7 +20,7 @@ class AddTaskMenu : DialogFragment() {
             isFinished: Boolean,
             note: String,
             importance: Int,
-            task: TaskItem? = null
+            task: Task? = null
         )
     }
 
@@ -29,7 +29,7 @@ class AddTaskMenu : DialogFragment() {
     companion object {
         private const val ARG_TASK = "task"
 
-        fun newInstance(task: TaskItem? = null): AddTaskMenu {
+        fun newInstance(task: Task? = null): AddTaskMenu {
             val fragment = AddTaskMenu()
             val args = Bundle()
             args.putSerializable(ARG_TASK, task)
@@ -41,7 +41,7 @@ class AddTaskMenu : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            task = it.getSerializable(ARG_TASK) as? TaskItem
+            task = it.getSerializable(ARG_TASK) as? Task
         }
     }
 
