@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.cs407.memoMate.Data.NoteDatabase
-import com.cs407.memoMate.TaskViewModel
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import java.util.Date
@@ -23,7 +22,6 @@ class NoteViewModelTest {
 
     private lateinit var noteDatabase: NoteDatabase
     private lateinit var taskDao: TaskDao
-    private lateinit var taskViewModel: TaskViewModel
 
     @Before
     fun setUp() {

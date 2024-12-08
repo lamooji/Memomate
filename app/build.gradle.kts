@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.ui.android)
+    implementation(libs.play.services.gcm)
 
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)       // Room annotation processor (used with kapt)

@@ -31,11 +31,10 @@ import java.util.Date
 
 class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
-    private var selectedDate: LocalDate? = null
     private var currentMonth: YearMonth = YearMonth.now()
     private lateinit var taskDao: TaskDao
     private lateinit var calendarView: CalendarView
-    private lateinit var dateSelector: DateSelector // Ensure this is properly initialized
+    private lateinit var dateSelector: DateSelector
     private val dateFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
 
     private val importanceColors = mapOf(
@@ -65,7 +64,10 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             todayDrawable = R.drawable.bg_today,
             importanceColors = importanceColors,
             taskImportanceMap = taskImportanceMap
-        )
+        ) { selectedDate ->
+            Log.d("DateSelector", "Date clicked: $selectedDate")
+            navigateToTaskList(selectedDate)
+        }
 
         val dummyDataInitializer = DummyDataInitializer()
 
@@ -74,7 +76,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             val taskCount = taskDao.getTaskCount()
             if (taskCount == 0) {
                 Log.d("calendar", "Database is empty. Populating with dummy data.")
-                dummyDataInitializer.populateDatabaseWithDummyData(taskDao) // Use the new class here
+                dummyDataInitializer.populateDatabaseWithDummyData(taskDao)
             } else {
                 Log.d("calendar", "Database already populated with $taskCount tasks.")
             }
@@ -157,4 +159,18 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             }
         }
     }
+
+    private fun navigateToTaskList(date: LocalDate) {
+        val bundle = Bundle().apply {
+            putString("selected_date", date.toString()) // Pass the date as a string
+        }
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, ViewTaskListFragment().apply {
+                arguments = bundle
+            })
+            .addToBackStack(null)
+            .commit()
+    }
+
 }

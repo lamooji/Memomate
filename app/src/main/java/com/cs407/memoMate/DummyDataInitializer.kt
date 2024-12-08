@@ -45,15 +45,15 @@ class DummyDataInitializer : ContentProvider() {
         val dummyTasks = listOf(
             Task(
                 noteId = 0, // Auto-generate ID
-                noteTitle = "High Priority Task",
-                noteAbstract = "This is a high priority task description.",
+                noteTitle = "Buy groceries",
+                noteAbstract = "This is a Buy groceries description.",
                 ddl = Date(System.currentTimeMillis() + (2 * 24 * 60 * 60 * 1000)), // 2 days from now
                 significance = 3,
                 finished = false
             ),
             Task(
                 noteId = 0,
-                noteTitle = "Medium Priority Task",
+                noteTitle = "Cardio at 6pm",
                 noteAbstract = "This is a medium priority task description.",
                 ddl = Date(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)), // 5 days from now
                 significance = 2,
@@ -61,23 +61,23 @@ class DummyDataInitializer : ContentProvider() {
             ),
             Task(
                 noteId = 0,
-                noteTitle = "Low Priority Task",
-                noteAbstract = "This is a low priority task description.",
+                noteTitle = "Dinner with bae",
+                noteAbstract = "This is a Dinner with bae task description.",
                 ddl = Date(System.currentTimeMillis() + (10 * 24 * 60 * 60 * 1000)), // 10 days from now
                 significance = 1,
                 finished = false
             ),
             Task(
                 noteId = 0,
-                noteTitle = "Completed Task",
-                noteAbstract = "This task is already finished.",
+                noteTitle = "Pay college fees",
+                noteAbstract = "This task is Pay college fees finished.",
                 ddl = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
                 significance = 3,
                 finished = false
             ),
             Task(
                 noteId = 0,
-                noteTitle = "high Task",
+                noteTitle = "Call Insurance Company",
                 noteAbstract = "This task does not wanted to be finished.",
                 ddl  = Calendar.getInstance().apply {
                     time = baseDate
@@ -88,7 +88,7 @@ class DummyDataInitializer : ContentProvider() {
             ),
             Task(
                 noteId = 0,
-                noteTitle = "high Task11",
+                noteTitle = "Go for a 30-Minute Walk",
                 noteAbstract = "This task is not finished.",
                 ddl = Calendar.getInstance().apply {
                     time = baseDate
@@ -100,7 +100,7 @@ class DummyDataInitializer : ContentProvider() {
             ,
             Task(
                 noteId = 0,
-                noteTitle = "high Task11",
+                noteTitle = "Schedule Dentist Appointment",
                 noteAbstract = "This task is not yet finished.",
                 ddl = Calendar.getInstance().apply {
                     time = baseDate

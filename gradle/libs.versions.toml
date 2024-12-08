@@ -25,6 +25,7 @@ roomKtxVersion = "2.5.0"
 roomCompiler = "2.5.0"
 roomPaging = "2.7.0-alpha11"
 uiAndroid = "1.7.5"
+playServicesGcm = "17.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,6 +53,7 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtxV
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
 androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "roomPaging" }
 androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+play-services-gcm = { group = "com.google.android.gms", name = "play-services-gcm", version.ref = "playServicesGcm" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
