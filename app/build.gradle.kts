@@ -5,6 +5,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs.kotlin")
     id("io.github.takahirom.roborazzi") version "1.8.0-alpha-5"
+    id ("kotlin-parcelize")
 }
 
 android {

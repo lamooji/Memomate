@@ -1,18 +1,22 @@
 package com.cs407.memoMate.Data
 
 import android.content.Context
+import android.os.Parcelable
 import androidx.room.*
+import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 
+@Parcelize
 @Entity(tableName = "task_list")
 data class Task(
-    @PrimaryKey(autoGenerate = true) val noteId: Int,
+    @PrimaryKey(autoGenerate = true) val noteId: Int = 0,
     val significance: Int,
-    val ddl: String, // Assuming dates are stored as strings in "MM/dd/yyyy" format
+    val ddl: String, // Date as a string in "MM/dd/yyyy" format
     val finished: Boolean,
     val noteTitle: String,
     val noteAbstract: String,
-    val importance: Int
-)
+    val importance: Int,
+) : Parcelable
 
 @Dao
 interface TaskDao {
@@ -68,8 +72,7 @@ interface TaskDao {
 
 }
 
-
-@Database(entities = [Task::class], version = 2)
+@Database(entities = [Task::class], version = 2, exportSchema = false)
 abstract class NoteDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
@@ -85,7 +88,7 @@ abstract class NoteDatabase : RoomDatabase() {
                     NoteDatabase::class.java,
                     "task_database"
                 )
-                    .fallbackToDestructiveMigration() // Or add migrations for production
+                    .fallbackToDestructiveMigration() // For development. Use migrations in production.
                     .build()
                 INSTANCE = instance
                 instance
@@ -93,3 +96,4 @@ abstract class NoteDatabase : RoomDatabase() {
         }
     }
 }
+

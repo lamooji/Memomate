@@ -116,6 +116,15 @@ class ViewTaskListFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     if (isNewTask) {
+                        // Check for duplicate task
+                        val existingTasks = database.taskDao().getAllTasks()
+                        if (existingTasks.any { it.noteTitle == updatedName && it.ddl == updatedDdl }) {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "Task with the same name and date already exists.", Toast.LENGTH_SHORT).show()
+                            }
+                            return@launch
+                        }
+
                         // Insert new task
                         database.taskDao().insertTask(
                             Task(
@@ -125,10 +134,9 @@ class ViewTaskListFragment : Fragment() {
                                 significance = updatedImportance,
                                 finished = updatedFinished,
                                 noteAbstract = updatedNote,
-                                importance = task.importance
+                                importance = 1 // Default importance
                             )
                         )
-                        Log.d("showEditTaskDialog", "Task added: $updatedName")
                     } else {
                         // Update existing task
                         database.taskDao().updateTask(
@@ -140,7 +148,6 @@ class ViewTaskListFragment : Fragment() {
                                 noteAbstract = updatedNote
                             )
                         )
-                        Log.d("showEditTaskDialog", "Task updated: $updatedName")
                     }
 
                     withContext(Dispatchers.Main) {
@@ -154,6 +161,7 @@ class ViewTaskListFragment : Fragment() {
                     }
                 }
             }
+
         }
 
         dialog.show()
