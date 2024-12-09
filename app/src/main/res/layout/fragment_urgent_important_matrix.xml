@@ -1,63 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#EDEDED">
+    android:background="#F5F5F5">
 
-    <!-- Midlines -->
+    <!-- Vertical Line (Dividing page into left and right halves) -->
     <View
-        android:id="@+id/vertical_line"
-        android:layout_width="1dp"
+        android:id="@+id/vertical_divider"
+        android:layout_width="2dp"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:background="#B0B0B0" />
+        android:layout_gravity="center"
+        android:background="#000000" />
 
+    <!-- Horizontal Line (Dividing page into top and bottom halves) -->
     <View
-        android:id="@+id/horizontal_line"
+        android:id="@+id/horizontal_divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_centerVertical="true"
-        android:background="#B0B0B0" />
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="#000000" />
 
-    <!-- Urgent and Important (Top-Left Quadrant) -->
-    <LinearLayout
-        android:id="@+id/urgent_important_quadrant"
+    <!-- Quadrant Labels -->
+    <!-- Urgent and Important -->
+    <TextView
+        android:id="@+id/quadrant_label_urgent_important"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Urgent\nand\nImportant"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Urgent but Not Important -->
+    <TextView
+        android:id="@+id/quadrant_label_urgent_not_important"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Urgent\nbut\nNot\nImportant"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Not Urgent but Important -->
+    <TextView
+        android:id="@+id/quadrant_label_not_urgent_important"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Not\nUrgent\nbut\nImportant"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Neither Urgent nor Important -->
+    <TextView
+        android:id="@+id/quadrant_label_neither"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Neither\nUrgent\nnor\nImportant"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Task Matrix Container -->
+    <FrameLayout
+        android:id="@+id/matrix_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_above="@id/horizontal_line"
-        android:layout_toStartOf="@id/vertical_line"
-        android:padding="8dp" />
-
-    <!-- Urgent but Not Important (Top-Right Quadrant) -->
-    <LinearLayout
-        android:id="@+id/urgent_not_important_quadrant"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_above="@id/horizontal_line"
-        android:layout_toEndOf="@id/vertical_line"
-        android:padding="8dp" />
-
-    <!-- Not Urgent but Important (Bottom-Left Quadrant) -->
-    <LinearLayout
-        android:id="@+id/not_urgent_important_quadrant"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_below="@id/horizontal_line"
-        android:layout_toStartOf="@id/vertical_line"
-        android:padding="8dp" />
-
-    <!-- Neither Urgent nor Important (Bottom-Right Quadrant) -->
-    <LinearLayout
-        android:id="@+id/not_urgent_not_important_quadrant"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_below="@id/horizontal_line"
-        android:layout_toEndOf="@id/vertical_line"
-        android:padding="8dp" />
-
-</RelativeLayout>
+        android:layout_height="match_parent" />
+</FrameLayout>

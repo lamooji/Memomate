@@ -60,4 +60,10 @@ class TaskViewModel(private val taskDao: TaskDao) : ViewModel() {
         }
         emit(tasks)
     }
+
+    fun getAllTasks(): LiveData<List<Task>> = liveData(Dispatchers.IO) {
+        val tasks = taskDao.getAllTasks() // Fetch all tasks from the database
+        emit(tasks) // Emit the tasks as a LiveData result
+    }
+
 }
