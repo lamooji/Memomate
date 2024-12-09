@@ -206,44 +206,45 @@ class ViewTaskListFragment : Fragment() {
             try {
                 val allTasks = database.taskDao().getAllTasks()
                 Log.d("loadGroupedTasks", "All tasks from DB: $allTasks")
+                Log.d("loadGroupedTasks", "Number of All tasks: ${allTasks.size}")
 
                 val groupedItems = mutableListOf<Any>()
 
-                val tasksWithinThreeDays = allTasks.filter { task ->
-                    val taskDate = dateFormat.parse(task.ddl)
-                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) in 0..2
-                }
+                val tasksWithinThreeDays = mutableListOf<Task>()
+                val tasksBetweenThreeAndFiveDays = mutableListOf<Task>()
+                val tasksAfterSevenDays = mutableListOf<Task>()
 
-                val tasksBetweenThreeAndFiveDays = allTasks.filter { task ->
+                allTasks.forEach { task ->
                     val taskDate = dateFormat.parse(task.ddl)
-                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) in 3..5
-                }
-
-                val tasksAfterSevenDays = allTasks.filter { task ->
-                    val taskDate = dateFormat.parse(task.ddl)
-                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) > 7
-                }
-
-                val tasksNotGrouped = allTasks.filterNot { task ->
-                    val taskDate = dateFormat.parse(task.ddl)
-                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) >= 0
+                    if (taskDate != null) {
+                        val daysDifference = (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24)
+                        when {
+                            daysDifference in 0..2 -> tasksWithinThreeDays.add(task)
+                            daysDifference in 3..7 -> tasksBetweenThreeAndFiveDays.add(task)
+                            daysDifference > 7 -> tasksAfterSevenDays.add(task)
+                        }
+                    }
                 }
 
                 if (tasksWithinThreeDays.isNotEmpty()) {
+                    Log.d("loadGroupedTasks", "tasksWithinThreeDays:${tasksWithinThreeDays}")
+                    Log.d("loadGroupedTasks", "number of taks in 3 days:${tasksWithinThreeDays.size}")
+
                     groupedItems.add("Upcoming in 3 Days")
                     groupedItems.addAll(tasksWithinThreeDays)
                 }
                 if (tasksBetweenThreeAndFiveDays.isNotEmpty()) {
+                    Log.d("loadGroupedTasks", "number of taks in 7 days:${tasksBetweenThreeAndFiveDays.size}")
+                    Log.d("loadGroupedTasks", "tasksBetweenThreeAndFiveDays:${tasksBetweenThreeAndFiveDays}")
+
                     groupedItems.add("Upcoming in 7 Days")
                     groupedItems.addAll(tasksBetweenThreeAndFiveDays)
                 }
                 if (tasksAfterSevenDays.isNotEmpty()) {
+                    Log.d("loadGroupedTasks", "number of taks in > 7 days:${tasksAfterSevenDays.size}")
+                    Log.d("loadGroupedTasks", "tasksAfterSevenDays:${tasksAfterSevenDays}")
                     groupedItems.add("Upcoming in Future")
                     groupedItems.addAll(tasksAfterSevenDays)
-                }
-                if (tasksNotGrouped.isNotEmpty()) {
-                    groupedItems.add("Other Tasks")
-                    groupedItems.addAll(tasksNotGrouped)
                 }
 
                 withContext(Dispatchers.Main) {
