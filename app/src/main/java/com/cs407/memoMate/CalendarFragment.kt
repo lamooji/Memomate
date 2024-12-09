@@ -119,24 +119,34 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
     private fun loadTasksForCurrentMonth() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val currentMonthStr = currentMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"))
-            val tasks = taskDao.getTasksForMonth(currentMonthStr)
+            try {
+                val currentMonthStr = currentMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"))
+                val tasks = taskDao.getTasksForMonth(currentMonthStr)
 
-            val groupedByDate = tasks.groupBy { task ->
-                LocalDate.parse(task.ddl, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US))
-            }
+                val groupedByDate = tasks.groupBy { task ->
+                    try {
+                        LocalDate.parse(task.ddl, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US))
+                    } catch (e: Exception) {
+                        Log.e("CalendarFragment", "Invalid date format: ${task.ddl}")
+                        null // Ignore invalid dates
+                    }
+                }.filterKeys { it != null } // Remove null (invalid dates)
 
-            taskImportanceMap.clear()
-            groupedByDate.forEach { (date, tasksOnDate) ->
-                val maxImportance = tasksOnDate.maxOfOrNull { it.importance } ?: 0
-                taskImportanceMap[date] = maxImportance
-            }
+                taskImportanceMap.clear()
+                groupedByDate.forEach { (date, tasksOnDate) ->
+                    val maxImportance = tasksOnDate.maxOfOrNull { it.importance } ?: 0
+                    taskImportanceMap[date!!] = maxImportance
+                }
 
-            withContext(Dispatchers.Main) {
-                calendarView.notifyCalendarChanged() // Refresh calendar on the main thread
+                withContext(Dispatchers.Main) {
+                    calendarView.notifyCalendarChanged() // Refresh calendar on the main thread
+                }
+            } catch (e: Exception) {
+                Log.e("CalendarFragment", "Error loading tasks: ${e.message}")
             }
         }
     }
+
 
     private fun navigateToTaskList(date: LocalDate) {
         val bundle = Bundle().apply {
