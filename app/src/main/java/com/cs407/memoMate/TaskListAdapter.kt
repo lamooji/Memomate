@@ -52,10 +52,20 @@ class TaskListAdapter(
 
                 // Set priority background based on significance
                 when (task.significance) {
-                    1 -> taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_low)
-                    2 -> taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_medium)
-                    3 -> taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_high)
+                    1 -> {
+                        taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_high)
+                        taskHolder.taskPriority.text = "High" // Set text for high priority
+                    }
+                    2 -> {
+                        taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_medium)
+                        taskHolder.taskPriority.text = "Medium" // Set text for medium priority
+                    }
+                    3 -> {
+                        taskHolder.taskPriority.setBackgroundResource(R.drawable.priority_badge_low)
+                        taskHolder.taskPriority.text = "Low" // Set text for low priority
+                    }
                 }
+
 
                 // Set click listener for delete icon
                 taskHolder.deleteIcon.setOnClickListener {

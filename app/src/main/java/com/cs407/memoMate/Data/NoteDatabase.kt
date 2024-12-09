@@ -91,7 +91,6 @@ abstract class NoteDatabase : RoomDatabase() {
                     NoteDatabase::class.java,
                     "task_database"
                 )
-                    .fallbackToDestructiveMigration() // For development. Use migrations in production.
                     .build()
                 INSTANCE = instance
                 instance

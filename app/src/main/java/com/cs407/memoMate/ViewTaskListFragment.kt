@@ -56,6 +56,9 @@ class ViewTaskListFragment : Fragment() {
             loadGroupedTasks()
         }
 
+        val dbPath = requireContext().getDatabasePath("task_database").absolutePath
+        Log.d("DatabasePath", "Database path: $dbPath")
+
         val addTaskButton = view.findViewById<ImageView>(R.id.add_task_button)
         addTaskButton.setOnClickListener { showAddTaskDialog() } // Separate dialog for adding tasks
 
