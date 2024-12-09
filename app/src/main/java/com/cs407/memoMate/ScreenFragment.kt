@@ -4,22 +4,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import android.widget.Toast
+import com.cs407.memoMate.Data.NoteDatabase
+import com.cs407.memoMate.Data.Task
 import com.google.android.material.textview.MaterialTextView
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
-class ScreenFragment : Fragment() {
+class ScreenFragment : Fragment(), AddTaskMenu.TaskDialogListener {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.main_screen, container, false)
     }
 
@@ -64,14 +68,14 @@ class ScreenFragment : Fragment() {
                 .commit()
         }
 
-        //GPT
+        // GPT
         val askAIButton = view.findViewById<LinearLayout>(R.id.ask_ai_button)
         askAIButton.setOnClickListener {
             val chatOverlayDialog = ChatOverlayDialogFragment()
             chatOverlayDialog.show(parentFragmentManager, "ChatOverlayDialog")
         }
 
-        //edit button
+        // Edit button
         view.findViewById<MaterialTextView>(R.id.edit_button).setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, ViewTaskListFragment())
@@ -79,7 +83,68 @@ class ScreenFragment : Fragment() {
                 .commit()
         }
 
-
+        // Add New Task button (similar logic to MainPageFragment)
+        val addNewTaskButton = view.findViewById<LinearLayout>(R.id.add_new_task_button)
+        addNewTaskButton.setOnClickListener {
+            val addTaskMenu = AddTaskMenu()
+            addTaskMenu.setListener(this) // Set this fragment as the listener
+            addTaskMenu.show(parentFragmentManager, "AddTaskMenu")
+        }
     }
 
+    // Implement the AddTaskMenu.TaskDialogListener interface methods:
+    override fun onTaskAdded(
+        name: String,
+        ddl: String,
+        isFinished: Boolean,
+        note: String,
+        importance: Int,
+        task: Task?
+    ) {
+        // This logic is similar to what's done in MainPageFragment:
+        val db = NoteDatabase.getDatabase(requireContext())
+        val taskDao = db.taskDao()
+
+        // Since this fragment doesn't maintain a task list like MainPageFragment,
+        // we only insert/update the database. If needed, you can also refresh UI or navigate.
+        CoroutineScope(Dispatchers.IO).launch {
+            if (task == null) {
+                // Adding a new task
+                val newTask = Task(
+                    noteId = 0,
+                    significance = 0,
+                    ddl = ddl,
+                    finished = isFinished,
+                    noteTitle = name,
+                    noteAbstract = note,
+                    importance = importance
+                )
+
+                // Prevent duplicate tasks with the same title and deadline
+                val existingTasks = taskDao.getAllTasks()
+                if (existingTasks.any { it.noteTitle == newTask.noteTitle && it.ddl == newTask.ddl }) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Task already exists.", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+
+                taskDao.insertTask(newTask)
+            } else {
+                // Editing an existing task
+                val updatedTask = task.copy(
+                    noteTitle = name,
+                    ddl = ddl,
+                    finished = isFinished,
+                    noteAbstract = note,
+                    importance = importance
+                )
+                taskDao.updateTask(updatedTask)
+            }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "Task saved successfully.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
