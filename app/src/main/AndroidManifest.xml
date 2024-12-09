@@ -23,13 +23,6 @@
             </intent-filter>
         </activity>
 
-        <!-- add dummy task provider for demonstration purpose -->
-        <provider
-            android:name=".DummyDataInitializer"
-            android:authorities="com.cs407.memoMate.initializer"
-            android:exported="false"
-            android:initOrder="100" />
-
 
     </application>
 
