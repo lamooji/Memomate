@@ -39,7 +39,10 @@ interface TaskDao {
     @Query("SELECT * FROM task_list")
     fun getAllTasks(): List<Task>
 
-    @Query("SELECT * FROM task_list WHERE strftime('%Y-%m', ddl) = :currentMonth")
+    @Query("""
+    SELECT * FROM task_list
+    WHERE strftime('%Y-%m', substr(ddl, 7, 4) || '-' || substr(ddl, 1, 2) || '-' || substr(ddl, 4, 2)) = :currentMonth
+""")
     suspend fun getTasksForMonth(currentMonth: String): List<Task>
 
     @Query("SELECT COUNT(*) FROM task_list")

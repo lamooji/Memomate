@@ -1,0 +1,18 @@
+Index: ../Memomate/app/src/main/res/layout/fragment_view_task_list.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:orientation=\"vertical\"\n    android:padding=\"16dp\">\n\n    <!-- Section Title -->\n    <TextView\n        android:id=\"@+id/section_title\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:text=\"Jan 2nd's Task\"\n        android:textSize=\"24sp\"\n        android:textStyle=\"bold\"\n        android:paddingBottom=\"16dp\"\n        android:paddingStart=\"12dp\" />\n\n    <!-- RecyclerView -->\n    <androidx.recyclerview.widget.RecyclerView\n        android:id=\"@+id/task_recycler_view\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"0dp\"\n        android:layout_weight=\"1\"\n        android:scrollbars=\"vertical\"\n        android:paddingStart=\"12dp\"\n        android:layout_marginEnd=\"12dp\" />\n\n    <!-- Buttons at Bottom -->\n    <LinearLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:orientation=\"horizontal\"\n        android:paddingTop=\"12dp\"\n        android:gravity=\"center_vertical\">\n\n        <!-- Back Button -->\n        <ImageView\n            android:id=\"@+id/back_button\"\n            android:layout_width=\"40dp\"\n            android:layout_height=\"40dp\"\n            android:src=\"@drawable/ic_back\"\n            android:paddingStart=\"12dp\"\n            android:layout_marginEnd=\"285dp\" />\n\n        <!-- Add Task Button -->\n        <ImageView\n            android:id=\"@+id/add_task_button\"\n            android:layout_width=\"40dp\"\n            android:layout_height=\"40dp\"\n            android:layout_gravity=\"end\"\n            android:contentDescription=\"Add Task\"\n            android:src=\"@drawable/ic_add\"\n            />\n    </LinearLayout>\n</LinearLayout>\n
+===================================================================
+diff --git a/../Memomate/app/src/main/res/layout/fragment_view_task_list.xml b/../Memomate/app/src/main/res/layout/fragment_view_task_list.xml
+--- a/../Memomate/app/src/main/res/layout/fragment_view_task_list.xml	(revision f4aef03cb4df7d1d6c296a5a1cda03f56aed778c)
++++ b/../Memomate/app/src/main/res/layout/fragment_view_task_list.xml	(date 1733726319582)
+@@ -2,7 +2,8 @@
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+-    android:padding="16dp">
++    android:padding="16dp"
++    android:background="#F4F4F4">
+ 
+     <!-- Section Title -->
+     <TextView
