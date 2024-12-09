@@ -28,12 +28,12 @@
         android:layout_gravity="top|start"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="Urgent\nand\nImportant"
+        android:text="not\nUrgent\nbut\nImportant"
         android:textColor="#000000"
         android:textSize="14sp"
         android:textStyle="bold" />
 
-    <!-- Urgent but Not Important -->
+    <!-- Urgent + Important -->
     <TextView
         android:id="@+id/quadrant_label_urgent_not_important"
         android:layout_width="wrap_content"
@@ -41,12 +41,12 @@
         android:layout_gravity="top|end"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:text="Urgent\nbut\nNot\nImportant"
+        android:text="Urgent\nand\nImportant"
         android:textColor="#000000"
         android:textSize="14sp"
         android:textStyle="bold" />
 
-    <!-- Not Urgent but Important -->
+    <!-- Not Urgent not Important -->
     <TextView
         android:id="@+id/quadrant_label_not_urgent_important"
         android:layout_width="wrap_content"
@@ -54,12 +54,12 @@
         android:layout_gravity="bottom|start"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Not\nUrgent\nbut\nImportant"
+        android:text="Not\nUrgent\nnor\nImportant"
         android:textColor="#000000"
         android:textSize="14sp"
         android:textStyle="bold" />
 
-    <!-- Neither Urgent nor Important -->
+    <!--  Urgent not Important -->
     <TextView
         android:id="@+id/quadrant_label_neither"
         android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Neither\nUrgent\nnor\nImportant"
+        android:text="Urgent\nbut\nnot\nImportant"
         android:textColor="#000000"
         android:textSize="14sp"
         android:textStyle="bold" />
