@@ -1,5 +1,6 @@
 package com.cs407.memoMate
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -72,6 +73,7 @@ class TaskListAdapter(
     override fun getItemCount(): Int = taskItems.size
 
     fun updateTaskItems(newItems: List<Any>) {
+        Log.d("update","updateTaks")
         taskItems.clear()
         taskItems.addAll(newItems)
         notifyDataSetChanged()

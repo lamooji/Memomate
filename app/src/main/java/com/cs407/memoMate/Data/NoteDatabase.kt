@@ -17,7 +17,7 @@ data class Task(
 @Dao
 interface TaskDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: Task): Long
 
     @Update
@@ -40,6 +40,8 @@ interface TaskDao {
 
     @Query("SELECT COUNT(*) FROM task_list")
     suspend fun getTaskCount(): Int
+
+
 
     @Query("""
     SELECT * 

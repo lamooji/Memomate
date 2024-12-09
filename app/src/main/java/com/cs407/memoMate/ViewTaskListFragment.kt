@@ -54,7 +54,7 @@ class ViewTaskListFragment : Fragment() {
         // Initialize database
         database = NoteDatabase.getDatabase(requireContext())
         if (selectedDate != null) {
-            loadGroupedTasks(selectedDate)
+            loadGroupedTasks()
         }
 
         val addTaskButton = view.findViewById<ImageView>(R.id.add_task_button)
@@ -66,26 +66,7 @@ class ViewTaskListFragment : Fragment() {
         return view
     }
 
-    private fun formatDateWithSuffix(date: Date?): String {
-        if (date == null) return "Invalid Date" // Handle null case
-
-        val dayFormat = SimpleDateFormat("d", Locale.getDefault())
-        val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
-        val day = dayFormat.format(date).toInt()
-        val month = monthFormat.format(date)
-
-        val suffix = when {
-            day in 11..13 -> "th"
-            day % 10 == 1 -> "st"
-            day % 10 == 2 -> "nd"
-            day % 10 == 3 -> "rd"
-            else -> "th"
-        }
-
-        return "$month $day$suffix"
-    }
-
-    private fun showEditTaskDialog(task: Task) {
+    private fun showEditTaskDialog(task: Task, isNewTask: Boolean = false) {
         // Inflate the layout
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.add_task_menu, null)
 
@@ -96,56 +77,88 @@ class ViewTaskListFragment : Fragment() {
         val noteEditText = dialogView.findViewById<EditText>(R.id.note_edit_text)
         val saveButton = dialogView.findViewById<Button>(R.id.add_button)
 
-        // Pre-fill fields with task details
-        nameEditText.setText(task.noteTitle)
-        ddlEditText.setText(task.ddl) // Directly set the `ddl` as a string
-        importanceEditText.setText(task.significance.toString())
-        finishedCheckbox.isChecked = task.finished
-        noteEditText.setText(task.noteAbstract)
-
-        // Change button text to "Save"
-        saveButton.text = "Save"
+        // Pre-fill fields for existing tasks
+        if (!isNewTask) {
+            nameEditText.setText(task.noteTitle)
+            ddlEditText.setText(task.ddl)
+            importanceEditText.setText(task.significance.toString())
+            finishedCheckbox.isChecked = task.finished
+            noteEditText.setText(task.noteAbstract)
+            saveButton.text = "Save"
+        } else {
+            saveButton.text = "Add Task"
+        }
 
         val dialog = android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Edit Task")
+            .setTitle(if (isNewTask) "Add Task" else "Edit Task")
             .setView(dialogView)
-            .setPositiveButton(null, null) // Use custom listener
             .setNegativeButton("Cancel", null) // Dismiss dialog on cancel
             .create()
 
         saveButton.setOnClickListener {
-            val updatedName = nameEditText.text.toString()
-            val updatedDdl = ddlEditText.text.toString()
+            val updatedName = nameEditText.text.toString().trim()
+            val updatedDdl = ddlEditText.text.toString().trim()
             val updatedImportance = importanceEditText.text.toString().toIntOrNull() ?: 1
             val updatedFinished = finishedCheckbox.isChecked
-            val updatedNote = noteEditText.text.toString()
+            val updatedNote = noteEditText.text.toString().trim()
 
-            // Validate the `updatedDdl` format
+            // Validate inputs
+            if (updatedName.isEmpty()) {
+                nameEditText.error = "Task name cannot be empty."
+                return@setOnClickListener
+            }
+
             if (!isValidDateFormat(updatedDdl)) {
                 ddlEditText.error = "Invalid date format. Use MM/dd/yyyy."
                 return@setOnClickListener
             }
 
-            // Update task in database
-            GlobalScope.launch(Dispatchers.IO) {
-                database.taskDao().updateTask(
-                    task.copy(
-                        noteTitle = updatedName,
-                        ddl = updatedDdl, // No parsing needed, use `ddl` as string
-                        significance = updatedImportance,
-                        finished = updatedFinished,
-                        noteAbstract = updatedNote
-                    )
-                )
-                withContext(Dispatchers.Main) {
-                    loadGroupedTasks(updatedDdl) // Refresh the UI
-                    dialog.dismiss()
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    if (isNewTask) {
+                        // Insert new task
+                        database.taskDao().insertTask(
+                            Task(
+                                noteId = 0,
+                                noteTitle = updatedName,
+                                ddl = updatedDdl,
+                                significance = updatedImportance,
+                                finished = updatedFinished,
+                                noteAbstract = updatedNote,
+                                importance = task.importance
+                            )
+                        )
+                        Log.d("showEditTaskDialog", "Task added: $updatedName")
+                    } else {
+                        // Update existing task
+                        database.taskDao().updateTask(
+                            task.copy(
+                                noteTitle = updatedName,
+                                ddl = updatedDdl,
+                                significance = updatedImportance,
+                                finished = updatedFinished,
+                                noteAbstract = updatedNote
+                            )
+                        )
+                        Log.d("showEditTaskDialog", "Task updated: $updatedName")
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        loadGroupedTasks()
+                        dialog.dismiss()
+                    }
+                } catch (e: Exception) {
+                    Log.e("showEditTaskDialog", "Error saving task: ${e.message}")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to save task.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
 
         dialog.show()
     }
+
 
     // Helper function to validate date format
     private fun isValidDateFormat(date: String): Boolean {
@@ -157,52 +170,60 @@ class ViewTaskListFragment : Fragment() {
         }
     }
 
-    private fun loadGroupedTasks(selectedDate: String) {
+    private fun loadGroupedTasks() {
+        val todayString = dateFormat.format(Date()) // Today's date as string
+        val todayDate = dateFormat.parse(todayString) ?: Date() // Parse today's date
+
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val allTasks = database.taskDao().getAllTasks()
+                Log.d("loadGroupedTasks", "All tasks from DB: $allTasks")
+
                 val groupedItems = mutableListOf<Any>()
 
-                val selectedDateParsed = dateFormat.parse(selectedDate)
+                val tasksWithinThreeDays = allTasks.filter { task ->
+                    val taskDate = dateFormat.parse(task.ddl)
+                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) in 0..2
+                }
 
-                if (selectedDateParsed != null) {
-                    val tasksWithinThreeDays = allTasks.filter { task ->
-                        val taskDate = dateFormat.parse(task.ddl)
-                        taskDate != null && (taskDate.time - selectedDateParsed.time) / (1000 * 60 * 60 * 24) in 0..2
-                    }
+                val tasksBetweenThreeAndFiveDays = allTasks.filter { task ->
+                    val taskDate = dateFormat.parse(task.ddl)
+                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) in 3..5
+                }
 
-                    val tasksBetweenThreeAndFiveDays = allTasks.filter { task ->
-                        val taskDate = dateFormat.parse(task.ddl)
-                        taskDate != null && (taskDate.time - selectedDateParsed.time) / (1000 * 60 * 60 * 24) in 3..5
-                    }
+                val tasksAfterSevenDays = allTasks.filter { task ->
+                    val taskDate = dateFormat.parse(task.ddl)
+                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) > 7
+                }
 
-                    val tasksAfterSevenDays = allTasks.filter { task ->
-                        val taskDate = dateFormat.parse(task.ddl)
-                        taskDate != null && (taskDate.time - selectedDateParsed.time) / (1000 * 60 * 60 * 24) > 7
-                    }
+                val tasksNotGrouped = allTasks.filterNot { task ->
+                    val taskDate = dateFormat.parse(task.ddl)
+                    taskDate != null && (taskDate.time - todayDate.time) / (1000 * 60 * 60 * 24) >= 0
+                }
 
-                    if (tasksWithinThreeDays.isNotEmpty()) {
-                        groupedItems.add("Upcoming in 3 Days")
-                        groupedItems.addAll(tasksWithinThreeDays)
-                    }
-                    if (tasksBetweenThreeAndFiveDays.isNotEmpty()) {
-                        groupedItems.add("Upcoming in 7 Days")
-                        groupedItems.addAll(tasksBetweenThreeAndFiveDays)
-                    }
-                    if (tasksAfterSevenDays.isNotEmpty()) {
-                        groupedItems.add("Upcoming in Future")
-                        groupedItems.addAll(tasksAfterSevenDays)
-                    }
-                } else {
-                    groupedItems.add("Invalid selected date.")
+                if (tasksWithinThreeDays.isNotEmpty()) {
+                    groupedItems.add("Upcoming in 3 Days")
+                    groupedItems.addAll(tasksWithinThreeDays)
+                }
+                if (tasksBetweenThreeAndFiveDays.isNotEmpty()) {
+                    groupedItems.add("Upcoming in 7 Days")
+                    groupedItems.addAll(tasksBetweenThreeAndFiveDays)
+                }
+                if (tasksAfterSevenDays.isNotEmpty()) {
+                    groupedItems.add("Upcoming in Future")
+                    groupedItems.addAll(tasksAfterSevenDays)
+                }
+                if (tasksNotGrouped.isNotEmpty()) {
+                    groupedItems.add("Other Tasks")
+                    groupedItems.addAll(tasksNotGrouped)
                 }
 
                 withContext(Dispatchers.Main) {
                     taskListAdapter.updateTaskItems(groupedItems)
                 }
             } catch (e: Exception) {
+                Log.e("loadGroupedTasks", "Error: ${e.message}")
                 withContext(Dispatchers.Main) {
-                    Log.e("loadGroupedTasks", "Error: ${e.message}")
                     taskListAdapter.updateTaskItems(listOf("Failed to load tasks."))
                 }
             }
@@ -230,6 +251,6 @@ class ViewTaskListFragment : Fragment() {
             noteTitle = "", // Empty title for a new task
             noteAbstract = "" // Empty abstract for a new task
         )
-        showEditTaskDialog(newTask)
+        showEditTaskDialog(newTask, isNewTask = true)
     }
 }
