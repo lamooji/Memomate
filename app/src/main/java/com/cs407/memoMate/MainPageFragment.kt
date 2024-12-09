@@ -2,7 +2,7 @@ package com.cs407.memoMate
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -37,45 +37,15 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
         taskAdapter = TaskAdapter(tasks)
         recyclerView.adapter = taskAdapter
 
-        // Load tasks from database (sorted ascending by significance: Red(1), Yellow(2), Green(3))
+        // Load tasks from database
         loadTasksFromDatabase()
 
-        // Initialize Buttons
-        val addButton = view.findViewById<Button>(R.id.addButton)
-        val deleteButton = view.findViewById<Button>(R.id.deleteButton)
-        val editButton = view.findViewById<Button>(R.id.editButton)
-        val calendarButton = view.findViewById<Button>(R.id.calendarButton)
-        val topButton = view.findViewById<Button>(R.id.topButton)
-        val chatGPTButton = view.findViewById<Button>(R.id.chatgptButton)
+        // Initialize the menu icon
+        val menuIcon = view.findViewById<ImageView>(R.id.menuIcon)
+        menuIcon.setOnClickListener { showPopupMenu(menuIcon) }
 
-        addButton.setOnClickListener {
-            val addTaskMenu = AddTaskMenu()
-            addTaskMenu.setListener(this)
-            addTaskMenu.show(parentFragmentManager, "AddTaskMenu")
-        }
-
-        editButton.setOnClickListener {
-            showEditTaskDialog()
-        }
-
-        deleteButton.setOnClickListener {
-            showDeleteTaskDialog()
-        }
-
-        calendarButton.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, CalendarFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
-        topButton.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, UrgentImportantMatrixFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
+        // ChatGPT button remains directly accessible
+        val chatGPTButton = view.findViewById<View>(R.id.chatgptButton)
         chatGPTButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, ChatGPTFragment())
@@ -84,15 +54,56 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
         }
     }
 
+    private fun showPopupMenu(anchor: View) {
+        val popup = androidx.appcompat.widget.PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.main_page_menu, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_add -> {
+                    // Same action as addButton previously
+                    val addTaskMenu = AddTaskMenu()
+                    addTaskMenu.setListener(this)
+                    addTaskMenu.show(parentFragmentManager, "AddTaskMenu")
+                    true
+                }
+                R.id.action_edit -> {
+                    // Same action as editButton previously
+                    showEditTaskDialog()
+                    true
+                }
+                R.id.action_delete -> {
+                    // Same action as deleteButton previously
+                    showDeleteTaskDialog()
+                    true
+                }
+                R.id.action_calendar -> {
+                    // Same as calendarButton previously
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, CalendarFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    true
+                }
+                R.id.action_matrix -> {
+                    // Same as topButton previously
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, UrgentImportantMatrixFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
     private fun loadTasksFromDatabase() {
         val db = NoteDatabase.getDatabase(requireContext())
         val taskDao = db.taskDao()
 
         lifecycleScope.launch(Dispatchers.IO) {
             val taskList = taskDao.getAllTasks()
-
-            // Sort tasks by significance ascending: Red(1) > Yellow(2) > Green(3)
-            // This puts Red at the top, Yellow in the middle, Green at the bottom.
             val sortedTaskList = taskList.sortedBy { it.significance }
 
             withContext(Dispatchers.Main) {
@@ -169,12 +180,11 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
         lifecycleScope.launch(Dispatchers.IO) {
             if (task == null) {
                 // Mapping importance to significance:
-                // Red = 1, Yellow = 2, Green = 3
                 val significanceValue = when (importance) {
                     1 -> 1 // Red
                     2 -> 2 // Yellow
                     3 -> 3 // Green
-                    else -> 3 // Default to Green if invalid input
+                    else -> 3
                 }
 
                 val newTask = Task(
@@ -187,7 +197,7 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
                     importance = importance
                 )
 
-                // Prevent duplicate tasks (same title and ddl)
+                // Prevent duplicate tasks
                 val existingTasks = taskDao.getAllTasks()
                 if (existingTasks.any { it.noteTitle == newTask.noteTitle && it.ddl == newTask.ddl }) {
                     withContext(Dispatchers.Main) {
@@ -198,12 +208,11 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
 
                 taskDao.insertTask(newTask)
             } else {
-                // Editing an existing task
                 val significanceValue = when (importance) {
-                    1 -> 1 // Red
-                    2 -> 2 // Yellow
-                    3 -> 3 // Green
-                    else -> task.significance // Keep old significance if invalid
+                    1 -> 1
+                    2 -> 2
+                    3 -> 3
+                    else -> task.significance
                 }
 
                 val updatedTask = task.copy(
@@ -217,7 +226,6 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
                 taskDao.updateTask(updatedTask)
             }
 
-            // Reload tasks to refresh UI
             withContext(Dispatchers.Main) {
                 loadTasksFromDatabase()
             }
