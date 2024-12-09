@@ -26,9 +26,18 @@ class SelectedTaskListAdapter(
 
         // Set priority background based on significance
         when (task.significance) {
-            1 -> holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_low)
-            2 -> holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_medium)
-            3 -> holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_high)
+            1 -> {
+                holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_high)
+                holder.taskPriority.text = "High" // Set text for high priority
+            }
+            2 -> {
+                holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_medium)
+                holder.taskPriority.text = "Medium" // Set text for medium priority
+            }
+            3 -> {
+                holder.taskPriority.setBackgroundResource(R.drawable.priority_badge_low)
+                holder.taskPriority.text = "Low" // Set text for low priority
+            }
         }
 
         // Remove Edit and Delete buttons (set visibility to GONE)
