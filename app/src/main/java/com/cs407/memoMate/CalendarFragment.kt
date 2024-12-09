@@ -30,9 +30,9 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
     private val dateFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
 
     private val importanceColors = mapOf(
-        3 to R.color.high_importance,
+        3 to R.color.low_importance,
         2 to R.color.medium_importance,
-        1 to R.color.low_importance
+        1 to R.color.high_importance
     )
 
     private val taskImportanceMap = mutableMapOf<LocalDate, Int>()
@@ -122,6 +122,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             try {
                 val currentMonthStr = currentMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"))
                 val tasks = taskDao.getTasksForMonth(currentMonthStr)
+                Log.d("CalendarFragment", "number of task being loaded ${tasks.size}")
 
                 val groupedByDate = tasks.groupBy { task ->
                     try {

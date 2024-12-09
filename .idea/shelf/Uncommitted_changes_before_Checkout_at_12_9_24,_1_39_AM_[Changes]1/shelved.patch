@@ -1,0 +1,15 @@
+Index: ../Memomate/.idea/.name
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>DummyDataInitializer.kt
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Memomate/.idea/.name b/../Memomate/.idea/.name
+--- a/../Memomate/.idea/.name	(revision f4aef03cb4df7d1d6c296a5a1cda03f56aed778c)
++++ b/../Memomate/.idea/.name	(date 1733705622830)
+@@ -1,1 +1,1 @@
+-DummyDataInitializer.kt
+\ No newline at end of file
++MemoMate
+\ No newline at end of file
