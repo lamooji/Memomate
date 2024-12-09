@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import com.cs407.memoMate.Data.NoteDatabase
 import com.cs407.memoMate.Data.Task
 import com.cs407.memoMate.databinding.AddTaskMenuBinding
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +36,7 @@ class AddTaskMenu : DialogFragment() {
         fun newInstance(task: Task? = null): AddTaskMenu {
             val fragment = AddTaskMenu()
             val args = Bundle()
-            args.putParcelable(ARG_TASK, task) // Use Parcelable for Task
+            args.putParcelable(ARG_TASK, task)
             fragment.arguments = args
             return fragment
         }
@@ -46,7 +45,7 @@ class AddTaskMenu : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            task = it.getParcelable(ARG_TASK) // Retrieve the task if editing
+            task = it.getParcelable(ARG_TASK)
         }
     }
 
@@ -70,27 +69,47 @@ class AddTaskMenu : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // If editing an existing task, populate fields
+        task?.let {
+            binding.nameEditText.setText(it.noteTitle)
+            binding.ddlEditText.setText(it.ddl)
+            binding.finishedCheckbox.isChecked = it.finished
+            binding.noteEditText.setText(it.noteAbstract)
+            binding.importanceSlider.value = it.significance.toFloat() // significance = importance here
+            updateImportanceLabel(it.significance)
+        } ?: run {
+            // Default importance to Red=1 if new task
+            binding.importanceSlider.value = 1.0f
+            updateImportanceLabel(1)
+        }
+
+        // Listen for slider changes to update the label
+        binding.importanceSlider.addOnChangeListener { _, value, _ ->
+            updateImportanceLabel(value.toInt())
+        }
+
         binding.addButton.setOnClickListener {
             val name = binding.nameEditText.text.toString()
             val ddl = binding.ddlEditText.text.toString()
             val isFinished = binding.finishedCheckbox.isChecked
             val note = binding.noteEditText.text.toString()
-            val importanceText = binding.importanceEditText.text.toString()
-            val importance = importanceText.toIntOrNull() ?: 3 // Default to 3 if invalid input
 
-            val newTask = Task(
-                noteId = task?.noteId ?: 0, // Retain ID if editing; 0 for new tasks
-                noteTitle = name,
-                noteAbstract = note,
-                ddl = ddl,
-                finished = isFinished,
-                importance = importance,
-                significance = task?.significance ?: 1, // Default significance
-            )
+            // Get importance from the slider
+            val importance = binding.importanceSlider.value.toInt()
 
             listener?.onTaskAdded(name, ddl, isFinished, note, importance, task)
             dismiss()
         }
+    }
+
+    private fun updateImportanceLabel(importance: Int) {
+        val importanceText = when (importance) {
+            1 -> "Red (1)"
+            2 -> "Yellow (2)"
+            3 -> "Green (3)"
+            else -> "Green (3)"
+        }
+        binding.importanceLabel.text = "Importance: $importanceText"
     }
 
     override fun onDestroyView() {

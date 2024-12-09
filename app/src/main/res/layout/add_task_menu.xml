@@ -1,4 +1,4 @@
-<!-- add_task_menu.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -38,14 +38,23 @@
             android:hint="DDL"
             android:layout_marginBottom="8dp"/>
 
-        <!-- Importance EditText -->
-        <EditText
-            android:id="@+id/importance_edit_text"
+        <!-- Importance Slider Label -->
+        <TextView
+            android:id="@+id/importance_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Importance (1:Red, 2:Yellow, 3:Green)"
-            android:layout_marginBottom="8dp"
-            android:inputType="number" />
+            android:text="Importance: Red (1)"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Importance Slider -->
+        <com.google.android.material.slider.Slider
+            android:id="@+id/importance_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="1.0"
+            android:valueTo="3.0"
+            android:stepSize="1.0"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Finished Checkbox -->
         <CheckBox
@@ -71,5 +80,4 @@
             android:text="Add"
             android:layout_gravity="end"/>
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

@@ -26,7 +26,6 @@ class ViewTaskListFragment : Fragment() {
     private lateinit var database: NoteDatabase
     private val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()) // Use consistent format
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,7 +52,7 @@ class ViewTaskListFragment : Fragment() {
 
         // Initialize database
         database = NoteDatabase.getDatabase(requireContext())
-        if (selectedDate != null) {
+        if (selectedDate.isNotEmpty()) {
             loadGroupedTasks()
         }
 
@@ -72,21 +71,42 @@ class ViewTaskListFragment : Fragment() {
 
         val nameEditText = dialogView.findViewById<EditText>(R.id.name_edit_text)
         val ddlEditText = dialogView.findViewById<EditText>(R.id.ddl_edit_text)
-        val importanceEditText = dialogView.findViewById<EditText>(R.id.importance_edit_text)
+        val importanceSlider = dialogView.findViewById<com.google.android.material.slider.Slider>(R.id.importance_slider)
+        val importanceLabel = dialogView.findViewById<TextView>(R.id.importance_label)
         val finishedCheckbox = dialogView.findViewById<CheckBox>(R.id.finished_checkbox)
         val noteEditText = dialogView.findViewById<EditText>(R.id.note_edit_text)
         val saveButton = dialogView.findViewById<Button>(R.id.add_button)
+
+        // Function to update the importance label based on slider value
+        fun updateImportanceLabel(value: Int) {
+            val text = when (value) {
+                1 -> "Red (1)"
+                2 -> "Yellow (2)"
+                3 -> "Green (3)"
+                else -> "Green (3)"
+            }
+            importanceLabel.text = "Importance: $text"
+        }
 
         // Pre-fill fields for existing tasks
         if (!isNewTask) {
             nameEditText.setText(task.noteTitle)
             ddlEditText.setText(task.ddl)
-            importanceEditText.setText(task.significance.toString())
+            importanceSlider.value = task.significance.toFloat()  // significance: Red=1, Yellow=2, Green=3
+            updateImportanceLabel(task.significance)
             finishedCheckbox.isChecked = task.finished
             noteEditText.setText(task.noteAbstract)
             saveButton.text = "Save"
         } else {
+            // Default values for a new task
+            importanceSlider.value = 1f
+            updateImportanceLabel(1)
             saveButton.text = "Add Task"
+        }
+
+        // Listen for slider changes
+        importanceSlider.addOnChangeListener { _, value, _ ->
+            updateImportanceLabel(value.toInt())
         }
 
         val dialog = android.app.AlertDialog.Builder(requireContext())
@@ -98,7 +118,7 @@ class ViewTaskListFragment : Fragment() {
         saveButton.setOnClickListener {
             val updatedName = nameEditText.text.toString().trim()
             val updatedDdl = ddlEditText.text.toString().trim()
-            val updatedImportance = importanceEditText.text.toString().toIntOrNull() ?: 1
+            val updatedImportance = importanceSlider.value.toInt()
             val updatedFinished = finishedCheckbox.isChecked
             val updatedNote = noteEditText.text.toString().trim()
 
@@ -134,7 +154,7 @@ class ViewTaskListFragment : Fragment() {
                                 significance = updatedImportance,
                                 finished = updatedFinished,
                                 noteAbstract = updatedNote,
-                                importance = 1 // Default importance
+                                importance = updatedImportance
                             )
                         )
                     } else {
@@ -145,7 +165,8 @@ class ViewTaskListFragment : Fragment() {
                                 ddl = updatedDdl,
                                 significance = updatedImportance,
                                 finished = updatedFinished,
-                                noteAbstract = updatedNote
+                                noteAbstract = updatedNote,
+                                importance = updatedImportance
                             )
                         )
                     }
@@ -166,7 +187,6 @@ class ViewTaskListFragment : Fragment() {
 
         dialog.show()
     }
-
 
     // Helper function to validate date format
     private fun isValidDateFormat(date: String): Boolean {
@@ -252,12 +272,12 @@ class ViewTaskListFragment : Fragment() {
     private fun showAddTaskDialog() {
         val newTask = Task(
             noteId = 0, // Default ID for a new task
-            significance = 1, // Default significance level
+            significance = 1, // Default significance (Red)
             importance = 1,
-            ddl = "", // Default deadline as the current date
-            finished = false, // Default unfinished state
-            noteTitle = "", // Empty title for a new task
-            noteAbstract = "" // Empty abstract for a new task
+            ddl = "", // Empty by default
+            finished = false,
+            noteTitle = "",
+            noteAbstract = ""
         )
         showEditTaskDialog(newTask, isNewTask = true)
     }
