@@ -1,4 +1,3 @@
-// AddTaskMenu.kt
 package com.cs407.memoMate
 
 import android.os.Bundle
@@ -6,9 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.cs407.memoMate.Data.NoteDatabase
+import com.cs407.memoMate.Data.Task
 import com.cs407.memoMate.databinding.AddTaskMenuBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AddTaskMenu : DialogFragment() {
+
     private var _binding: AddTaskMenuBinding? = null
     private val binding get() = _binding!!
     private var task: Task? = null
@@ -32,7 +37,7 @@ class AddTaskMenu : DialogFragment() {
         fun newInstance(task: Task? = null): AddTaskMenu {
             val fragment = AddTaskMenu()
             val args = Bundle()
-            args.putSerializable(ARG_TASK, task)
+            args.putParcelable(ARG_TASK, task) // Use Parcelable for Task
             fragment.arguments = args
             return fragment
         }
@@ -41,7 +46,7 @@ class AddTaskMenu : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            task = it.getSerializable(ARG_TASK) as? Task
+            task = it.getParcelable(ARG_TASK) // Retrieve the task if editing
         }
     }
 
@@ -54,7 +59,6 @@ class AddTaskMenu : DialogFragment() {
         return binding.root
     }
 
-    // Add this method to adjust the dialog size
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(
@@ -66,23 +70,23 @@ class AddTaskMenu : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Pre-populate fields if editing
-        if (task != null) {
-            binding.nameEditText.setText(task!!.name)
-            binding.ddlEditText.setText(task!!.ddl)
-            binding.finishedCheckbox.isChecked = task!!.isChecked
-            binding.noteEditText.setText(task!!.note)
-            binding.importanceEditText.setText(task!!.importance.toString())
-            binding.addButton.text = "Save"
-        }
-
         binding.addButton.setOnClickListener {
             val name = binding.nameEditText.text.toString()
             val ddl = binding.ddlEditText.text.toString()
             val isFinished = binding.finishedCheckbox.isChecked
             val note = binding.noteEditText.text.toString()
             val importanceText = binding.importanceEditText.text.toString()
-            val importance = importanceText.toIntOrNull() ?: 3  // Default to 3 if invalid input
+            val importance = importanceText.toIntOrNull() ?: 3 // Default to 3 if invalid input
+
+            val newTask = Task(
+                noteId = task?.noteId ?: 0, // Retain ID if editing; 0 for new tasks
+                noteTitle = name,
+                noteAbstract = note,
+                ddl = ddl,
+                finished = isFinished,
+                importance = importance,
+                significance = task?.significance ?: 1, // Default significance
+            )
 
             listener?.onTaskAdded(name, ddl, isFinished, note, importance, task)
             dismiss()

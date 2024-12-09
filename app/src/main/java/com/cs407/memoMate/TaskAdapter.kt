@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.cs407.memoMate.Data.Task
 
 class TaskAdapter(private val tasks: MutableList<Task>) :
     RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
@@ -29,8 +30,8 @@ class TaskAdapter(private val tasks: MutableList<Task>) :
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val taskItem = tasks[position]
-        holder.taskTextView.text = taskItem.name
-        holder.taskCheckBox.isChecked = taskItem.isChecked
+        holder.taskTextView.text = taskItem.noteTitle
+        //holder.taskCheckBox.isChecked = taskItem.isChecked
 
         // Set the background color based on importance
         val backgroundColor = when (taskItem.importance) {
@@ -41,10 +42,10 @@ class TaskAdapter(private val tasks: MutableList<Task>) :
         }
         holder.itemView.setBackgroundColor(backgroundColor)
 
-        // Handle checkbox state changes
-        holder.taskCheckBox.setOnCheckedChangeListener { _, isChecked ->
-            taskItem.isChecked = isChecked
-        }
+//        // Handle checkbox state changes
+//        holder.taskCheckBox.setOnCheckedChangeListener { _, isChecked ->
+//            taskItem.isChecked = isChecked
+//        }
     }
 
     // Return the size of your dataset
