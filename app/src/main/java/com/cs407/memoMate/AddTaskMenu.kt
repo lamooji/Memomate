@@ -1,15 +1,15 @@
 package com.cs407.memoMate
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.cs407.memoMate.Data.Task
 import com.cs407.memoMate.databinding.AddTaskMenuBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class AddTaskMenu : DialogFragment() {
 
@@ -75,7 +75,7 @@ class AddTaskMenu : DialogFragment() {
             binding.ddlEditText.setText(it.ddl)
             binding.finishedCheckbox.isChecked = it.finished
             binding.noteEditText.setText(it.noteAbstract)
-            binding.importanceSlider.value = it.significance.toFloat() // significance = importance here
+            binding.importanceSlider.value = it.significance.toFloat()
             updateImportanceLabel(it.significance)
         } ?: run {
             // Default importance to Red=1 if new task
@@ -83,19 +83,54 @@ class AddTaskMenu : DialogFragment() {
             updateImportanceLabel(1)
         }
 
-        // Listen for slider changes to update the label
+        // Add a TextWatcher to automatically insert '/' characters for DDL
+        binding.ddlEditText.addTextChangedListener(object : TextWatcher {
+            private var isFormatting = false
+            private var prevLength = 0
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (isFormatting) return
+                if (s == null) return
+
+                isFormatting = true
+
+                val length = s.length
+                // After typing 2 digits, add a slash if it's not already there
+                if (length == 2 && prevLength < length) {
+                    s.append("/")
+                }
+                // After typing 5 characters (which includes "MM/"), add another slash if not already present
+                else if (length == 5 && prevLength < length) {
+                    s.append("/")
+                }
+
+                prevLength = s.length
+                isFormatting = false
+            }
+        })
+
+        // Update importance label when slider changes
         binding.importanceSlider.addOnChangeListener { _, value, _ ->
             updateImportanceLabel(value.toInt())
         }
 
         binding.addButton.setOnClickListener {
-            val name = binding.nameEditText.text.toString()
-            val ddl = binding.ddlEditText.text.toString()
+            val name = binding.nameEditText.text.toString().trim()
+            val ddl = binding.ddlEditText.text.toString().trim()
             val isFinished = binding.finishedCheckbox.isChecked
-            val note = binding.noteEditText.text.toString()
+            val note = binding.noteEditText.text.toString().trim()
 
             // Get importance from the slider
             val importance = binding.importanceSlider.value.toInt()
+
+            // Validate the DDL format: MM/dd/yyyy
+            val dateRegex = Regex("^\\d{2}/\\d{2}/\\d{4}\$")
+            if (!dateRegex.matches(ddl)) {
+                Toast.makeText(requireContext(), "Date must be in MM/dd/yyyy format", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             listener?.onTaskAdded(name, ddl, isFinished, note, importance, task)
             dismiss()
