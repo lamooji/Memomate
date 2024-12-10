@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.ViewContainer
@@ -37,14 +38,12 @@ class DateSelector(
         val importanceLevel = taskImportanceMap[data.date] ?: 0
         val importanceColor = importanceColors[importanceLevel] ?: R.color.default_day
 
-        if (data.date.month != currentMonth.month) {
-            // Non-current month dates are dimmed
+        if (data.date.yearMonth != currentMonth) {
             container.textView.isEnabled = false
             container.textView.alpha = 0.3f
             container.textView.setBackgroundResource(0) // Clear background
             container.textView.setTextColor(ContextCompat.getColor(context, R.color.dark_gray))
         } else {
-            // Current month dates
             container.textView.isEnabled = true
             container.textView.alpha = 1f
             container.textView.setTextColor(ContextCompat.getColor(context, R.color.black))
