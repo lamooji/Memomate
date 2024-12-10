@@ -1,7 +1,7 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#F3F4F6"
     android:orientation="vertical"
     android:padding="16dp"
@@ -52,6 +52,7 @@
             android:textSize="14sp"
             android:textColor="#FFFFFF"
             android:gravity="center"
+            app:backgroundTint="@color/color_selector"
             android:elevation="4dp" />
 
     </LinearLayout>

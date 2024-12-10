@@ -24,7 +24,7 @@ class ChatOverlayDialogFragment : DialogFragment() {
     private lateinit var sendButton: Button
 
     private val url = "https://api.openai.com/v1/chat/completions"
-    private val apiKey = ""
+    private val apiKey = "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"
 
     override fun onCreateView(
         inflater: LayoutInflater,
