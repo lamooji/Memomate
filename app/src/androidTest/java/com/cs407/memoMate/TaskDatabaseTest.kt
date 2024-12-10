@@ -27,9 +27,10 @@ class NoteViewModelTest {
 
     @Before
     fun setUp() {
-        noteDatabase = Room.inMemoryDatabaseBuilder(
+        noteDatabase = Room.databaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            NoteDatabase::class.java
+            NoteDatabase::class.java,
+            "test_database"
         ).allowMainThreadQueries().build()
         taskDao = noteDatabase.taskDao()
     }
@@ -44,7 +45,7 @@ class NoteViewModelTest {
     @Test
     fun insertTaskAndRetrieveIt() = runBlocking {
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
         val currentDateString = dateFormat.format(Date())
         // Create a task
         val task = Task(
@@ -62,13 +63,18 @@ class NoteViewModelTest {
         assertTrue(id > 0)
 
         val retrievedTask = taskDao.getTaskById(id.toInt())
+
         assertNotNull(retrievedTask)
         assertEquals(task.noteTitle, retrievedTask?.noteTitle)
+
+        if (retrievedTask != null) {
+            taskDao.deleteTask(retrievedTask)
+        }
     }
 
     @Test
     fun deleteTask() = runBlocking {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
         val currentDateString = dateFormat.format(Date())
 
         // Insert a task
@@ -82,7 +88,11 @@ class NoteViewModelTest {
             noteAbstract = "This will be deleted."
         )
 
+        Log.d("TestLog", "Tasks before insertion: ${taskDao.getAllTasks()}")
+
         val generatedId = taskDao.insertTask(task)
+        Log.d("TestLog", "Tasks after insertion: ${taskDao.getAllTasks()}")
+
 
         val taskWithId = task.copy(noteId = generatedId.toInt())
 

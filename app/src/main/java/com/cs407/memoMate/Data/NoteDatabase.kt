@@ -91,6 +91,7 @@ abstract class NoteDatabase : RoomDatabase() {
                     NoteDatabase::class.java,
                     "task_database"
                 )
+                   // .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
                     .build()
                 INSTANCE = instance
                 instance
