@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="dark_gray">#A9A9A9</color>
+    <color name="red">#A5FF2E2E</color>
+    <color name="light_gray">#D5D5D5</color>
+
+    <color name = "icon_circle_red">#A5FF2E2E</color>
+    <color name = "blue_main_text">#007CFF</color>
+
+    <color name = "default_day">#00000000</color>
+    <color name = "high_importance">#59FF2E2E</color>
+    <color name = "medium_importance">#70FFD09B</color>
+    <color name = "low_importance">#70BDFEC0</color>
+
+
+</resources>
