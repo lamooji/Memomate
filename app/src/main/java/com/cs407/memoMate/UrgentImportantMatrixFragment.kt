@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -138,11 +139,25 @@ class UrgentImportantMatrixFragment : Fragment() {
     private fun createTaskView(task: Task, color: Int): TextView {
         return TextView(requireContext()).apply {
             text = "${task.noteTitle}\nDue: ${task.ddl}"
-            setBackgroundColor(color)
+            setBackgroundResource(R.drawable.rounded_box) // Reference the shape drawable
+            background.setTint(color) // Tint the background with the provided color
             setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             textSize = 14f
             setPadding(16, 16, 16, 16)
             elevation = 8f // Add elevation for better visibility
         }
     }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val backButton = view.findViewById<Button>(R.id.back_button)
+        backButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ScreenFragment())
+                .commit()
+        }
+    }
+
 }

@@ -9,7 +9,7 @@
         android:layout_width="2dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="#000000" />
+        android:background="#BDBDBD" />
 
     <!-- Horizontal Line (Dividing page into top and bottom halves) -->
     <View
@@ -17,64 +17,88 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_gravity="center"
-        android:background="#000000" />
+        android:background="#BDBDBD" />
 
     <!-- Quadrant Labels -->
-    <!-- Urgent and Important -->
+
+    <!-- Not Urgent but Important -->
     <TextView
         android:id="@+id/quadrant_label_urgent_important"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="not\nUrgent\nbut\nImportant"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Not\nUrgent\nbut\nImportant"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/quadrant_label_background"
+        android:padding="8dp" />
 
-    <!-- Urgent + Important -->
+    <!-- Urgent and Important -->
     <TextView
         android:id="@+id/quadrant_label_urgent_not_important"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
         android:text="Urgent\nand\nImportant"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/quadrant_label_background"
+        android:padding="8dp" />
 
-    <!-- Not Urgent not Important -->
+    <!-- Not Urgent nor Important -->
     <TextView
         android:id="@+id/quadrant_label_not_urgent_important"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Not\nUrgent\nnor\nImportant"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/quadrant_label_background"
+        android:padding="8dp" />
 
-    <!--  Urgent not Important -->
+    <!-- Urgent but not Important -->
     <TextView
         android:id="@+id/quadrant_label_neither"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Urgent\nbut\nnot\nImportant"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/quadrant_label_background"
+        android:padding="8dp" />
 
     <!-- Task Matrix Container -->
     <FrameLayout
         android:id="@+id/matrix_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_margin="16dp" />
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:elevation="4dp" />
+
 </FrameLayout>
