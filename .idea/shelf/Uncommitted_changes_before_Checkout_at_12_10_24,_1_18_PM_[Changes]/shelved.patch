@@ -1,0 +1,34 @@
+Index: ../Memomate/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_7_24__10_18_PM__Changes_.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><changelist name=\"Uncommitted_changes_before_Checkout_at_12_7_24,_10_18_PM_[Changes]\" date=\"1733631527805\" recycled=\"true\" deleted=\"true\">\n  <option name=\"PATH\" value=\"$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_7_24,_10_18_PM_[Changes]/shelved.patch\" />\n  <option name=\"DESCRIPTION\" value=\"Uncommitted changes before Checkout at 12/7/24, 10:18 PM [Changes]\" />\n  <binary>\n    <option name=\"BEFORE_PATH\" value=\"app/src/main/res/drawable/Calendar_date_icon/icon_1.png\" />\n    <option name=\"AFTER_PATH\" />\n    <option name=\"SHELVED_PATH\" />\n  </binary>\n  <binary>\n    <option name=\"BEFORE_PATH\" value=\"app/src/main/res/drawable/Calendar_date_icon/icon_2.png\" />\n    <option name=\"AFTER_PATH\" />\n    <option name=\"SHELVED_PATH\" />\n  </binary>\n  <binary>\n    <option name=\"BEFORE_PATH\" value=\"app/src/main/res/drawable/Calendar_date_icon/icon_3.png\" />\n    <option name=\"AFTER_PATH\" />\n    <option name=\"SHELVED_PATH\" />\n  </binary>\n  <binary>\n    <option name=\"BEFORE_PATH\" value=\"app/src/main/res/drawable/Calendar_date_icon/icon_7.png\" />\n    <option name=\"AFTER_PATH\" />\n    <option name=\"SHELVED_PATH\" />\n  </binary>\n</changelist>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Memomate/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_7_24__10_18_PM__Changes_.xml b/../Memomate/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_7_24__10_18_PM__Changes_.xml
+--- a/../Memomate/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_7_24__10_18_PM__Changes_.xml	(revision 60939c6f2f590b12fafdb8bb747bf8a945c64c93)
++++ b/../Memomate/.idea/shelf/Uncommitted_changes_before_Checkout_at_12_7_24__10_18_PM__Changes_.xml	(date 1733858137460)
+@@ -3,22 +3,14 @@
+   <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 12/7/24, 10:18 PM [Changes]" />
+   <binary>
+     <option name="BEFORE_PATH" value="app/src/main/res/drawable/Calendar_date_icon/icon_1.png" />
+-    <option name="AFTER_PATH" />
+-    <option name="SHELVED_PATH" />
+   </binary>
+   <binary>
+     <option name="BEFORE_PATH" value="app/src/main/res/drawable/Calendar_date_icon/icon_2.png" />
+-    <option name="AFTER_PATH" />
+-    <option name="SHELVED_PATH" />
+   </binary>
+   <binary>
+     <option name="BEFORE_PATH" value="app/src/main/res/drawable/Calendar_date_icon/icon_3.png" />
+-    <option name="AFTER_PATH" />
+-    <option name="SHELVED_PATH" />
+   </binary>
+   <binary>
+     <option name="BEFORE_PATH" value="app/src/main/res/drawable/Calendar_date_icon/icon_7.png" />
+-    <option name="AFTER_PATH" />
+-    <option name="SHELVED_PATH" />
+   </binary>
+ </changelist>
+\ No newline at end of file
