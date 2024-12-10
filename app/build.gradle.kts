@@ -30,6 +30,7 @@ android {
                 "proguard-rules.pro"
             )
         }
+
     }
 
     buildFeatures {
@@ -42,6 +43,23 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.testLogging {
+                    events("passed", "failed", "standardOut", "standardError")
+                    showExceptions = true
+                    showCauses = true
+                    showStackTraces = true
+                    exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                    showStandardStreams = true
+                }
+                it.outputs.upToDateWhen { false }
+            }
+        }
     }
 }
 
