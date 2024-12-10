@@ -12,7 +12,7 @@ data class Task(
     @PrimaryKey(autoGenerate = true) val noteId: Int = 0,
     val significance: Int,
     val ddl: String, // Date as a string in "MM/dd/yyyy" format
-    val finished: Boolean,
+    var finished: Boolean,
     val noteTitle: String,
     val noteAbstract: String,
     val importance: Int,

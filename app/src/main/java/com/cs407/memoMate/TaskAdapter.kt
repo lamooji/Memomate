@@ -31,7 +31,7 @@ class TaskAdapter(private val tasks: MutableList<Task>) :
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val taskItem = tasks[position]
         holder.taskTextView.text = taskItem.noteTitle
-        //holder.taskCheckBox.isChecked = taskItem.isChecked
+        holder.taskCheckBox.isChecked = taskItem.finished
 
         // Set the background color based on importance
         val backgroundColor = when (taskItem.importance) {
@@ -42,10 +42,11 @@ class TaskAdapter(private val tasks: MutableList<Task>) :
         }
         holder.itemView.setBackgroundColor(backgroundColor)
 
-//        // Handle checkbox state changes
-//        holder.taskCheckBox.setOnCheckedChangeListener { _, isChecked ->
-//            taskItem.isChecked = isChecked
-//        }
+        //Handle checkbox state changes
+        holder.taskCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            taskItem.finished = isChecked
+            notifyItemChanged(position)
+        }
     }
 
     // Return the size of your dataset
