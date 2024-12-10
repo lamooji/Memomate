@@ -28,7 +28,7 @@ class ChatGPTFragment : Fragment() {
     private val url = "https://api.openai.com/v1/chat/completions"
 
     // OpenAI API key
-    private val apiKey = "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"
+    private val apiKey = "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"
 
     // Inflate the fragment layout
     override fun onCreateView(
