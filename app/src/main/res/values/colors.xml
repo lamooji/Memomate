@@ -17,5 +17,8 @@
 
     <color name="default_gray">#BDBDBD</color>
 
+    <color name="blue">#2196F3</color> <!-- Blue -->
+    <color name="light_blue">#BBDEFB</color> <!-- Light Blue -->
+    <color name="gray">#BDBDBD</color> <!-- Gray -->
 
 </resources>
