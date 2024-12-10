@@ -66,6 +66,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
         btnNextMonth.setOnClickListener {
             currentMonth = currentMonth.plusMonths(1)
+            dateSelector.updateMonth(currentMonth)
             updateMonthTitle(monthTitle)
             calendarView.scrollToMonth(currentMonth)
             loadTasksForCurrentMonth()
@@ -73,6 +74,7 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
 
         btnPrevMonth.setOnClickListener {
             currentMonth = currentMonth.minusMonths(1)
+            dateSelector.updateMonth(currentMonth)
             updateMonthTitle(monthTitle)
             calendarView.scrollToMonth(currentMonth)
             loadTasksForCurrentMonth()

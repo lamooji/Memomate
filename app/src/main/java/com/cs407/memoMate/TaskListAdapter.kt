@@ -66,6 +66,12 @@ class TaskListAdapter(
                     }
                 }
 
+                // Set visibility for the "Complete" badge based on the finished state
+                taskHolder.taskComplete.visibility = if (task.finished) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
 
                 // Set click listener for delete icon
                 taskHolder.deleteIcon.setOnClickListener {
@@ -110,5 +116,6 @@ class TaskListAdapter(
         val taskPriority: TextView = itemView.findViewById(R.id.task_priority)
         val deleteIcon: ImageView = itemView.findViewById(R.id.delete_icon) // Delete icon
         val editIcon: ImageView = itemView.findViewById(R.id.edit_icon)     // Edit icon
+        val taskComplete: TextView = itemView.findViewById(R.id.task_complete)
     }
 }
