@@ -35,7 +35,7 @@
             android:id="@+id/ddl_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="DDL"
+            android:hint="DDL(MM/DD/YYYY)"
             android:layout_marginBottom="8dp"/>
 
         <!-- Importance Slider Label -->
