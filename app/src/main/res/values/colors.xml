@@ -15,5 +15,7 @@
     <color name = "medium_importance">#70FFD09B</color>
     <color name = "low_importance">#70BDFEC0</color>
 
+    <color name="default_gray">#BDBDBD</color>
+
 
 </resources>

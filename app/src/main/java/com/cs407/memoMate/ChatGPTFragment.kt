@@ -60,6 +60,11 @@ class ChatGPTFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please enter a message", Toast.LENGTH_SHORT).show()
             }
         }
+
+        val backButton = view.findViewById<Button>(R.id.back_button)
+        backButton.setOnClickListener {
+            parentFragmentManager.popBackStack() // Navigate back to the previous fragment
+        }
     }
 
     // Function to send the user's message to OpenAI's ChatGPT API
