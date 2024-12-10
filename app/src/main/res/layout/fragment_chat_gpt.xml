@@ -1,7 +1,7 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="#F8F9FA">
@@ -42,14 +42,16 @@
 
         <Button
             android:id="@+id/sendButton"
-            android:layout_width="70dp"
+            android:layout_width="100dp"
             android:layout_height="56dp"
             android:layout_marginStart="8dp"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:gravity="center"
             android:text="Enter"
+            app:backgroundTint="@color/color_selector"
             android:elevation="4dp" />
+
     </LinearLayout>
 
     <!-- Back button -->
@@ -64,5 +66,7 @@
         android:textColor="#FFFFFF"
         android:padding="8dp"
         android:textSize="14sp"
+        app:backgroundTint="@color/color_selector"
         android:elevation="4dp" />
+
 </LinearLayout>
