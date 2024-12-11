@@ -7,14 +7,32 @@
     android:layout_height="match_parent"
     android:background="#F4F4F4"
     tools:context=".ui.main.MainPageFragment">
+    <!-- Back button -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/back_button_background"
+        android:contentDescription="Back"
+        android:text="Back"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:backgroundTint="@color/color_selector"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
 
     <!-- Top-right menu icon -->
     <ImageView
         android:id="@+id/menuIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="25dp"
         android:contentDescription="Menu"
         android:src="@android:drawable/ic_menu_more"
         app:layout_constraintEnd_toEndOf="parent"
