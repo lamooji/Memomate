@@ -2,6 +2,7 @@ package com.cs407.memoMate
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -52,6 +53,11 @@ class MainPageFragment : Fragment(), AddTaskMenu.TaskDialogListener {
                 .addToBackStack(null)
                 .commit()
         }
+        val backButton = view.findViewById<Button>(R.id.backButton)
+        backButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
     }
 
     private fun showPopupMenu(anchor: View) {
